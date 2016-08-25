@@ -8,7 +8,9 @@ Run a GraphQL query anywhere, without a GraphQL server or a schema. Just pass in
 npm install graphql-anywhere graphql-tag
 ```
 
-This isn't necessarily meant to be a useful thing, but I think there are a lot of potentially exciting use cases for a completely standalone, schema-less, GraphQL execution engine. Let's come up with some!
+This isn't necessarily meant to be a useful thing, but I think there are a lot of potentially exciting use cases for a completely standalone, schema-less, GraphQL execution engine. One of the best ones is if you're building a GraphQL client, and don't want to load graphql-js or a schema.
+
+Let's come up with some more ideas - below are some use cases to get you started!
 
 ## Example: Filter a nested object
 
