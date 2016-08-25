@@ -1,7 +1,6 @@
 # graphql-anywhere
 
 [![npm version](https://badge.fury.io/js/graphql-anywhere.svg)](https://badge.fury.io/js/graphql-anywhere)
-[![Build status](https://travis-ci.org/apollostack/graphql-anywhere.svg?branch=master)](https://travis-ci.org/apollostack/graphql-anywhere)
 
 Run a GraphQL query anywhere, without a GraphQL server or a schema. Just pass in one resolver. Use it together with [graphql-tag](https://github.com/apollostack/graphql-tag).
 
@@ -9,7 +8,7 @@ Run a GraphQL query anywhere, without a GraphQL server or a schema. Just pass in
 npm install graphql-anywhere graphql-tag
 ```
 
-This isn't necessarily meant to be a useful thing, but I think there are a lot of potentially exciting use cases for a completely standalone GraphQL execution engine. Let's come up with some!
+This isn't necessarily meant to be a useful thing, but I think there are a lot of potentially exciting use cases for a completely standalone, schema-less, GraphQL execution engine. Let's come up with some!
 
 ## Example: Filter a nested object
 
