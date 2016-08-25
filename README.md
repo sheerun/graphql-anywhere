@@ -165,6 +165,8 @@ const schema = {
   },
 };
 
+// This resolver is a bit more complex than others, since it has to
+// correctly handle the root object, values by ID, and scalar leafs.
 const resolver = (fieldName, rootValue): any => {
   // Treat root specially if we have to unpack result field
   if (rootValue === data) {
