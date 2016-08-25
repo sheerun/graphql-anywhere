@@ -27,8 +27,8 @@ graphql(resolver, document, rootValue?, context?, variables?)
 - `context`: A context object passed to the resolver for every field
 - `variables`: A dictionary of variables for the query
 
-## Example: Filter a nested object
 <a id="filter"></a>
+## Example: Filter a nested object
 
 ```js
 import gql from 'graphql-tag';
@@ -89,8 +89,8 @@ assert.deepEqual(result, {
 });
 ```
 
-## Example: Generate mock data
 <a id="mock"></a>
+## Example: Generate mock data
 
 ```js
 // Write a query where the fields are types, but we alias them
@@ -130,9 +130,8 @@ assert.deepEqual(result, {
   },
 });
 ```
-
-## Example: Read from a Redux store generated with Normalizr
 <a id="normalizr"></a>
+## Example: Read from a Redux store generated with Normalizr
 
 ```js
 const data = {
