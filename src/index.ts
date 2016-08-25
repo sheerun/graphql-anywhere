@@ -42,9 +42,9 @@ export type VariableMap = { [name: string]: any };
 export default function graphql(
   resolver: Resolver,
   document: Document,
-  rootValue: any,
-  contextValue: any,
-  variableValues: VariableMap
+  rootValue?: any,
+  contextValue?: any,
+  variableValues?: VariableMap
 ) {
   const queryDefinition = getQueryDefinition(document);
 
