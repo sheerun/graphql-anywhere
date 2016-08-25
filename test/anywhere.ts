@@ -229,4 +229,43 @@ describe('graphql anywhere', () => {
       ],
     });
   });
+
+  it('readme example 2', () => {
+    // Write a query where the fields are types, but we alias them
+    const query = gql`
+      {
+        author {
+          name: string
+          age: int
+          address {
+            state: string
+          }
+        }
+      }
+    `;
+
+    // Define a resolver that uses the field name to determine the type
+    // Note that we get the actual name, not the alias, but the alias
+    // is used to determine the location in the response
+    const resolver = (fieldName) => ({
+      string: 'This is a string',
+      int: 5,
+    }[fieldName]);
+
+    // Generate the object!
+    const result = graphql(
+      resolver,
+      query
+    );
+
+    assert.deepEqual(result, {
+      author: {
+        name: 'This is a string',
+        age: 5,
+        address: {
+          state: 'This is a string',
+        },
+      },
+    });
+  });
 });
