@@ -1,319 +1,254 @@
 import {
-  NetworkInterface,
-  createNetworkInterface,
-  addQueryMerging,
-} from './networkInterface';
-
-import {
   Document,
-  FragmentDefinition,
-
-  // We need to import this here to allow TypeScript to include it in the definition file even
-  // though we don't use it. https://github.com/Microsoft/TypeScript/issues/5711
-  // We need to disable the linter here because TSLint rightfully complains that this is unused.
-  /* tslint:disable */
   SelectionSet,
-  /* tslint:enable */
-
+  Field,
 } from 'graphql';
 
 import {
-  print,
-} from 'graphql-tag/printer';
-
-import {
-  createApolloStore,
-  ApolloStore,
-  createApolloReducer,
-  ApolloReducerConfig,
-} from './store';
-
-import {
-  QueryManager,
-} from './QueryManager';
-
-import {
-    ObservableQuery,
-} from './ObservableQuery';
-
-import {
-  WatchQueryOptions,
-} from './watchQueryOptions';
-
-import {
-  readQueryFromStore,
-  readFragmentFromStore,
-} from './data/readFromStore';
-
-import {
-  writeQueryToStore,
-  writeFragmentToStore,
-} from './data/writeToStore';
-
-import {
-  IdGetter,
-} from './data/extensions';
-
-import {
-  QueryTransformer,
-  addTypenameToSelectionSet,
-} from './queries/queryTransform';
-
-import {
-  MutationBehavior,
-  MutationBehaviorReducerMap,
-  MutationQueryReducersMap,
-} from './data/mutationResults';
-
-import {
-  storeKeyNameFromFieldNameAndArgs,
-} from './data/storeUtils';
-
-import {
+  getQueryDefinition,
   getFragmentDefinitions,
-} from './queries/getFromAST';
+  createFragmentMap,
+  FragmentMap,
+} from './getFromAST';
 
-import isUndefined = require('lodash.isundefined');
+import {
+  shouldInclude,
+} from './directives';
+
+import {
+  isField,
+  isInlineFragment,
+  resultKeyNameFromField,
+  argumentsObjectFromField,
+} from './storeUtils';
+
+import isArray = require('lodash.isarray');
+import isNull = require('lodash.isnull');
 import assign = require('lodash.assign');
-import flatten = require('lodash.flatten');
 
-// We expose the print method from GraphQL so that people that implement
-// custom network interfaces can turn query ASTs into query strings as needed.
-export {
-  createNetworkInterface,
-  addQueryMerging,
-  createApolloStore,
-  createApolloReducer,
-  readQueryFromStore,
-  readFragmentFromStore,
-  addTypenameToSelectionSet as addTypename,
-  writeQueryToStore,
-  writeFragmentToStore,
-  print as printAST,
-};
+export type Resolver = (fieldName, rootValue, args, context) => any;
 
-export type ApolloQueryResult = {
-  data: any;
-  loading: boolean;
+export type VariableMap = { [name: string]: any };
 
-  // This type is different from the GraphQLResult type because it doesn't include errors.
-  // Those are thrown via the standard promise/observer catch mechanism.
+// Based on graphql function from graphql-js:
+// graphql(
+//   schema: GraphQLSchema,
+//   requestString: string,
+//   rootValue?: ?any,
+//   contextValue?: ?any,
+//   variableValues?: ?{[key: string]: any},
+//   operationName?: ?string
+// ): Promise<GraphQLResult>
+export default function graphql(
+  resolver: Resolver,
+  document: Document,
+  rootValue: any,
+  contextValue: any,
+  variableValues: VariableMap
+) {
+  const queryDefinition = getQueryDefinition(document);
+
+  const fragments = getFragmentDefinitions(document);
+  const fragmentMap = createFragmentMap(fragments);
+
+  return executeSelectionSet(
+    resolver,
+    queryDefinition.selectionSet,
+    variableValues,
+    fragmentMap,
+    rootValue,
+    contextValue
+  );
 }
 
-// A map going from the name of a fragment to that fragment's definition.
-// The point is to keep track of fragments that exist and print a warning if we encounter two
-// fragments that have the same name, i.e. the values *should* be of arrays of length 1.
-// Note: this variable is exported solely for unit testing purposes. It should not be touched
-// directly by application code.
-export let fragmentDefinitionsMap: { [fragmentName: string]: FragmentDefinition[] } = {};
+const throwOnMissingField = true;
 
-// Specifies whether or not we should print warnings about conflicting fragment names.
-let printFragmentWarnings = true;
+function executeSelectionSet(
+  resolver: Resolver,
+  selectionSet: SelectionSet,
+  variables: VariableMap,
+  fragmentMap: FragmentMap,
+  rootValue: any,
+  contextValue: any
+) {
+  if (!fragmentMap) {
+    fragmentMap = {};
+  }
 
-// Takes a document, extracts the FragmentDefinitions from it and puts
-// them in this.fragmentDefinitions. The second argument specifies the fragments
-// that the fragment in the document depends on. The fragment definition array from the document
-// is concatenated with the fragment definition array passed as the second argument and this
-// concatenated array is returned.
-export function createFragment(
-  doc: Document,
-  fragments: (FragmentDefinition[] | FragmentDefinition[][]) = []
-): FragmentDefinition[] {
-  fragments = flatten(fragments) as FragmentDefinition[] ;
-  const fragmentDefinitions = getFragmentDefinitions(doc);
-  fragmentDefinitions.forEach((fragmentDefinition) => {
-    const fragmentName = fragmentDefinition.name.value;
-    if (fragmentDefinitionsMap.hasOwnProperty(fragmentName) &&
-        fragmentDefinitionsMap[fragmentName].indexOf(fragmentDefinition) === -1) {
-      // this is a problem because the app developer is trying to register another fragment with
-      // the same name as one previously registered. So, we tell them about it.
-      if (printFragmentWarnings) {
-        console.warn(`Warning: fragment with name ${fragmentDefinition.name.value} already exists.
-Apollo Client enforces all fragment names across your application to be unique; read more about
-this in the docs: http://docs.apollostack.com/`);
+  const result = {};
+
+  // A map going from a typename to missing field errors thrown on that
+  // typename. This data structure is needed to support union types. For example, if we have
+  // a union type (Apple | Orange) and we only receive fields for fragments on
+  // "Apple", that should not result in an error. But, if at least one of the fragments
+  // for each of "Apple" and "Orange" is missing a field, that should return an error.
+  // (i.e. with this approach, we manage to handle missing fields correctly even for
+  // union types without any knowledge of the GraphQL schema).
+  let fragmentErrors: { [typename: string]: Error } = {};
+
+  selectionSet.selections.forEach((selection) => {
+    const included = shouldInclude(selection, variables);
+
+    if (isField(selection)) {
+      const fieldResult = executeField(
+        resolver,
+        selection,
+        variables,
+        fragmentMap,
+        included,
+        rootValue,
+        contextValue
+      );
+
+      const resultFieldKey = resultKeyNameFromField(selection);
+
+      if (included && fieldResult !== undefined) {
+        result[resultFieldKey] = fieldResult;
+      }
+    } else if (isInlineFragment(selection)) {
+      const typename = selection.typeCondition.name.value;
+
+      if (included) {
+        try {
+          const inlineFragmentResult = executeSelectionSet(
+            resolver,
+            selection.selectionSet,
+            variables,
+            fragmentMap,
+            rootValue,
+            contextValue
+          );
+
+          assign(result, inlineFragmentResult);
+
+          if (!fragmentErrors[typename]) {
+            fragmentErrors[typename] = null;
+          }
+        } catch (e) {
+          if (e.extraInfo && e.extraInfo.isFieldError) {
+            fragmentErrors[typename] = e;
+          } else {
+            throw e;
+          }
+        }
+      }
+    } else {
+      // This is a named fragment
+      const fragment = fragmentMap[selection.name.value];
+
+      if (!fragment) {
+        throw new Error(`No fragment named ${selection.name.value}`);
       }
 
-      fragmentDefinitionsMap[fragmentName].push(fragmentDefinition);
-    } else if (!fragmentDefinitionsMap.hasOwnProperty(fragmentName)) {
-      fragmentDefinitionsMap[fragmentName] = [fragmentDefinition];
+      const typename = fragment.typeCondition.name.value;
+
+      if (included) {
+        try {
+          const namedFragmentResult = executeSelectionSet(
+            resolver,
+            fragment.selectionSet,
+            variables,
+            fragmentMap,
+            rootValue,
+            contextValue
+          );
+
+          assign(result, namedFragmentResult);
+
+          if (!fragmentErrors[typename]) {
+            fragmentErrors[typename] = null;
+          }
+        } catch (e) {
+          if (e.extraInfo && e.extraInfo.isFieldError) {
+            fragmentErrors[typename] = e;
+          } else {
+            throw e;
+          }
+        }
+      }
     }
   });
 
-  return fragments.concat(fragmentDefinitions);
-}
-
-// This function disables the warnings printed about fragment names. One place where this chould be
-// called is within writing unit tests that depend on Apollo Client and use named fragments that may
-// have the same name across different unit tests.
-export function disableFragmentWarnings() {
-  printFragmentWarnings = false;
-}
-
-export function enableFragmentWarnings() {
-  printFragmentWarnings = true;
-}
-
-// This function is used to be empty the namespace of fragment definitions. Used for unit tests.
-export function clearFragmentDefinitions() {
-  fragmentDefinitionsMap = {};
-}
-
-
-export default class ApolloClient {
-  public networkInterface: NetworkInterface;
-  public store: ApolloStore;
-  public reduxRootKey: string;
-  public initialState: any;
-  public queryManager: QueryManager;
-  public reducerConfig: ApolloReducerConfig;
-  public queryTransformer: QueryTransformer;
-  public shouldBatch: boolean;
-  public shouldForceFetch: boolean;
-  public dataId: IdGetter;
-  public fieldWithArgs: (fieldName: string, args?: Object) => string;
-  public batchInterval: number;
-
-  constructor({
-    networkInterface,
-    reduxRootKey,
-    initialState,
-    dataIdFromObject,
-    queryTransformer,
-    shouldBatch = false,
-    ssrMode = false,
-    ssrForceFetchDelay = 0,
-    mutationBehaviorReducers = {} as MutationBehaviorReducerMap,
-    batchInterval,
-  }: {
-    networkInterface?: NetworkInterface,
-    reduxRootKey?: string,
-    initialState?: any,
-    dataIdFromObject?: IdGetter,
-    queryTransformer?: QueryTransformer,
-    shouldBatch?: boolean,
-    ssrMode?: boolean,
-    ssrForceFetchDelay?: number
-    mutationBehaviorReducers?: MutationBehaviorReducerMap,
-    batchInterval?: number,
-  } = {}) {
-    this.reduxRootKey = reduxRootKey ? reduxRootKey : 'apollo';
-    this.initialState = initialState ? initialState : {};
-    this.networkInterface = networkInterface ? networkInterface :
-      createNetworkInterface('/graphql');
-    this.queryTransformer = queryTransformer;
-    this.shouldBatch = shouldBatch;
-    this.shouldForceFetch = !(ssrMode || ssrForceFetchDelay > 0);
-    this.dataId = dataIdFromObject;
-    this.fieldWithArgs = storeKeyNameFromFieldNameAndArgs;
-    this.batchInterval = batchInterval;
-
-    if (ssrForceFetchDelay) {
-      setTimeout(() => this.shouldForceFetch = true, ssrForceFetchDelay);
-    }
-
-    this.reducerConfig = {
-      dataIdFromObject,
-      mutationBehaviorReducers,
-    };
-
-    this.watchQuery = this.watchQuery.bind(this);
-    this.query = this.query.bind(this);
-    this.mutate = this.mutate.bind(this);
-    this.setStore = this.setStore.bind(this);
+  if (throwOnMissingField) {
+    handleFragmentErrors(fragmentErrors);
   }
 
-  public watchQuery(options: WatchQueryOptions): ObservableQuery {
-    this.initStore();
+  return result;
+}
 
-    if (!this.shouldForceFetch && options.forceFetch) {
-      options = assign({}, options, {
-        forceFetch: false,
-      }) as WatchQueryOptions;
-    }
+function executeField(
+  resolver: Resolver,
+  field: Field,
+  variables: VariableMap,
+  fragmentMap: FragmentMap,
+  included: Boolean,
+  rootValue: any,
+  contextValue: any
+): any {
+  const fieldName = field.name.value;
+  const args = argumentsObjectFromField(field, variables);
 
-    // Register each of the fragments present in the query document. The point
-    // is to prevent fragment name collisions with fragments that are in the query
-    // document itself.
-    createFragment(options.query);
+  const result = resolver(fieldName, rootValue, args, context);
 
-    return this.queryManager.watchQuery(options);
-  };
-
-  public query(options: WatchQueryOptions): Promise<ApolloQueryResult> {
-    this.initStore();
-
-    if (!this.shouldForceFetch && options.forceFetch) {
-      options = assign({}, options, {
-        forceFetch: false,
-      }) as WatchQueryOptions;
-    }
-
-    // Register each of the fragments present in the query document. The point
-    // is to prevent fragment name collisions with fragments that are in the query
-    // document itself.
-    createFragment(options.query);
-
-    return this.queryManager.query(options);
-  };
-
-  public mutate(options: {
-    mutation: Document,
-    variables?: Object,
-    resultBehaviors?: MutationBehavior[],
-    fragments?: FragmentDefinition[],
-    optimisticResponse?: Object,
-    updateQueries?: MutationQueryReducersMap,
-    refetchQueries?: string[],
-  }): Promise<ApolloQueryResult> {
-    this.initStore();
-    return this.queryManager.mutate(options);
-  };
-
-  public reducer(): Function {
-    return createApolloReducer(this.reducerConfig);
+  // Handle all scalar types here
+  if (! field.selectionSet) {
+    return result;
   }
 
-  public middleware = () => {
-    return (store: ApolloStore) => {
-      this.setStore(store);
+  // From here down, the field has a selection set, which means it's trying to
+  // query a GraphQLObjectType
+  if (isNull(result)) {
+    // Basically any field in a GraphQL response can be null
+    return null;
+  }
 
-      return (next) => (action) => {
-        const returnValue = next(action);
-        this.queryManager.broadcastNewStore(store.getState());
-        return returnValue;
-      };
-    };
-  };
+  if (isArray(result)) {
+    return result.map((item) => {
+      // XXX handle nested arrays
 
-  public initStore() {
-    if (this.store) {
-      // Don't do anything if we already have a store
-      return;
-    }
+      // null value in array
+      if (isNull(item)) {
+        return null;
+      }
 
-    // If we don't have a store already, initialize a default one
-    this.setStore(createApolloStore({
-      reduxRootKey: this.reduxRootKey,
-      initialState: this.initialState,
-      config: this.reducerConfig,
-    }));
-  };
-
-  private setStore(store: ApolloStore) {
-    // ensure existing store has apolloReducer
-    if (isUndefined(store.getState()[this.reduxRootKey])) {
-      throw new Error(`Existing store does not use apolloReducer for ${this.reduxRootKey}`);
-    }
-
-    this.store = store;
-
-    this.queryManager = new QueryManager({
-      networkInterface: this.networkInterface,
-      reduxRootKey: this.reduxRootKey,
-      store,
-      queryTransformer: this.queryTransformer,
-      shouldBatch: this.shouldBatch,
-      batchInterval: this.batchInterval,
+      return executeSelectionSet(
+        resolver,
+        field.selectionSet,
+        variables,
+        fragmentMap,
+        item,
+        contextValue
+      );
     });
-  };
+  }
+
+  // Returned value is an object, and the query has a sub-selection. Recurse.
+  return executeSelectionSet(
+    resolver,
+    field.selectionSet,
+    variables,
+    fragmentMap,
+    result,
+    contextValue
+  );
+}
+
+// Takes a map of errors for fragments of each type. If all of the types have
+// thrown an error, this function will throw the error associated with one
+// of the types.
+export function handleFragmentErrors(fragmentErrors: { [typename: string]: Error }) {
+  const typenames = Object.keys(fragmentErrors);
+
+  // This is a no-op.
+  if (typenames.length === 0) {
+    return;
+  }
+
+  const errorTypes = typenames.filter((typename) => {
+    return (fragmentErrors[typename] !== null);
+  });
+
+  if (errorTypes.length === Object.keys(fragmentErrors).length) {
+    throw fragmentErrors[errorTypes[0]];
+  }
 }

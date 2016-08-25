@@ -69,23 +69,15 @@ function valueToObjectRepresentation(argObj: Object, name: Name, value: Value, v
   }
 }
 
-export function storeKeyNameFromField(field: Field, variables?: Object): string {
+export function argumentsObjectFromField(field: Field, variables: Object): Object {
   if (field.arguments && field.arguments.length) {
     const argObj: Object = {};
-
     field.arguments.forEach(({name, value}) => valueToObjectRepresentation(
       argObj, name, value, variables));
-
-    return storeKeyNameFromFieldNameAndArgs(field.name.value, argObj);
+    return argObj;
   }
 
-  return field.name.value;
-}
-
-export function storeKeyNameFromFieldNameAndArgs(fieldName: string, args?: Object): string {
-  const stringifiedArgs: string = JSON.stringify(args);
-
-  return `${fieldName}(${stringifiedArgs})`;
+  return null;
 }
 
 export function resultKeyNameFromField(field: Field): string {
