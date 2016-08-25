@@ -2,6 +2,7 @@ import { assert } from 'chai';
 
 import graphql from '../src';
 import gql from 'graphql-tag';
+import assign = require('lodash.assign');
 
 describe('graphql anywhere', () => {
   it('does basic things', () => {
@@ -29,6 +30,34 @@ describe('graphql anywhere', () => {
         b: 'fakefake',
         c: 'fakefake',
       },
+    });
+  });
+
+  it('traverses arrays returned from the resolver', () => {
+    const resolver = () => [1, 2];
+
+    const query = gql`
+      {
+        a {
+          b
+        }
+      }
+    `;
+
+    const result = graphql(
+      resolver,
+      query
+    );
+
+    assert.deepEqual(result, {
+      a: [
+        {
+          b: [1, 2],
+        },
+        {
+          b: [1, 2],
+        },
+      ],
     });
   });
 
@@ -266,6 +295,93 @@ describe('graphql anywhere', () => {
           state: 'This is a string',
         },
       },
+    });
+  });
+
+  it('read from Redux normalized store', () => {
+    const data = {
+      result: [1, 2],
+      entities: {
+        articles: {
+          1: {
+            id: 1,
+            title: 'Some Article',
+            author: 1,
+          },
+          2: {
+            id: 2,
+            title: 'Other Article',
+            author: 1,
+          },
+        },
+        users: {
+          1: {
+            id: 1,
+            name: 'Dan',
+          },
+        },
+      },
+    };
+
+    const query = gql`
+      {
+        result {
+          title
+          author {
+            name
+          }
+        }
+      }
+    `;
+
+    const schema = {
+      articles: {
+        author: 'users',
+      },
+    };
+
+    const resolver = (fieldName, rootValue): any => {
+      if (rootValue === data) {
+        return data.result.map((id) => assign({}, data.entities.articles[id], {
+          __typename: 'articles',
+        }));
+      }
+
+      const typename = rootValue.__typename;
+      // If this field is a reference according to the schema
+      if (typename && schema[typename] && schema[typename][fieldName]) {
+        // Get the target type, and get it from entities by ID
+        const targetType: string = schema[typename][fieldName];
+        return assign({}, data.entities[targetType][rootValue[fieldName]], {
+          __typename: targetType,
+        });
+      }
+
+      // This field is just a scalar
+      return rootValue[fieldName];
+    };
+
+    const result = graphql(
+      resolver,
+      query,
+      data
+    );
+
+    assert.deepEqual(result, {
+      result: [
+        {
+          title: 'Some Article',
+          author: {
+            name: 'Dan',
+          },
+        },
+        {
+          title: 'Other Article',
+          author: {
+            name: 'Dan',
+          },
+        },
+      ],
     });
   });
 });
