@@ -166,21 +166,19 @@ const schema = {
 
 // This resolver is a bit more complex than others, since it has to
 // correctly handle the root object, values by ID, and scalar leafs.
-const resolver = (fieldName, rootValue): any => {
-  // Treat root specially if we have to unpack result field
-  if (rootValue === data) {
-    return data.result.map((id) => assign({}, data.entities.articles[id], {
+const resolver = (fieldName, rootValue, args, context): any => {
+  if (!rootValue) {
+    return context.result.map((id) => assign({}, context.entities.articles[id], {
       __typename: 'articles',
     }));
   }
 
   const typename = rootValue.__typename;
-
   // If this field is a reference according to the schema
   if (typename && schema[typename] && schema[typename][fieldName]) {
     // Get the target type, and get it from entities by ID
     const targetType: string = schema[typename][fieldName];
-    return assign({}, data.entities[targetType][rootValue[fieldName]], {
+    return assign({}, context.entities[targetType][rootValue[fieldName]], {
       __typename: targetType,
     });
   }
@@ -189,7 +187,12 @@ const resolver = (fieldName, rootValue): any => {
   return rootValue[fieldName];
 };
 
-const result = graphql(resolver, query, data);
+const result = graphql(
+  resolver,
+  query,
+  null,
+  data // pass data as context since we have to access it all the time
+);
 
 // This is the non-normalized data, with only the fields we asked for in our query!
 assert.deepEqual(result, {

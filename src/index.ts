@@ -188,7 +188,7 @@ function executeField(
   const fieldName = field.name.value;
   const args = argumentsObjectFromField(field, variables);
 
-  const result = resolver(fieldName, rootValue, args, context);
+  const result = resolver(fieldName, rootValue, args, contextValue);
 
   // Handle all scalar types here
   if (! field.selectionSet) {

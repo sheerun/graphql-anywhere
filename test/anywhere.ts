@@ -303,22 +303,11 @@ describe('graphql anywhere', () => {
       result: [1, 2],
       entities: {
         articles: {
-          1: {
-            id: 1,
-            title: 'Some Article',
-            author: 1,
-          },
-          2: {
-            id: 2,
-            title: 'Other Article',
-            author: 1,
-          },
+          1: { id: 1, title: 'Some Article', author: 1 },
+          2: { id: 2, title: 'Other Article', author: 1 },
         },
         users: {
-          1: {
-            id: 1,
-            name: 'Dan',
-          },
+          1: { id: 1, name: 'Dan' },
         },
       },
     };
@@ -340,9 +329,11 @@ describe('graphql anywhere', () => {
       },
     };
 
-    const resolver = (fieldName, rootValue): any => {
-      if (rootValue === data) {
-        return data.result.map((id) => assign({}, data.entities.articles[id], {
+    // This resolver is a bit more complex than others, since it has to
+    // correctly handle the root object, values by ID, and scalar leafs.
+    const resolver = (fieldName, rootValue, args, context): any => {
+      if (!rootValue) {
+        return context.result.map((id) => assign({}, context.entities.articles[id], {
           __typename: 'articles',
         }));
       }
@@ -352,7 +343,7 @@ describe('graphql anywhere', () => {
       if (typename && schema[typename] && schema[typename][fieldName]) {
         // Get the target type, and get it from entities by ID
         const targetType: string = schema[typename][fieldName];
-        return assign({}, data.entities[targetType][rootValue[fieldName]], {
+        return assign({}, context.entities[targetType][rootValue[fieldName]], {
           __typename: targetType,
         });
       }
@@ -364,9 +355,11 @@ describe('graphql anywhere', () => {
     const result = graphql(
       resolver,
       query,
-      data
+      null,
+      data // pass data as context since we have to access it all the time
     );
 
+    // This is the non-normalized data, with only the fields we asked for in our query!
     assert.deepEqual(result, {
       result: [
         {
