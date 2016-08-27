@@ -225,10 +225,6 @@ assert.deepEqual(result, {
 });
 ```
 
-## What does this support?
-
-Every GraphQL syntax feature I can think of is supported, as far as I know, including aliases, arguments, variables, inline fragments, named fragments, and `skip`/`include` directives.
-
 ### Known limitations:
 
 - The execution engine is synchronous, so you probably shouldn't use this to query your API. Please submit a PR to add promise functionality, and ideally batching support, like `graphql-js` has! Wouldn't it be cool if you could use this to dynamically query a REST API via GraphQL?
