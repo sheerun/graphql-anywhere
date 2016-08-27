@@ -27,6 +27,18 @@ graphql(resolver, document, rootValue?, context?, variables?)
 - `context`: A context object passed to the resolver for every field
 - `variables`: A dictionary of variables for the query
 
+### Supported GraphQL features
+
+Why do you even need a library for this? Well, running a GraphQL query isn't as simple as just traversing the AST, since there are some pretty neat features that make the language a bit more complex to execute.
+
+- [x] Arguments
+- [x] Variables
+- [x] Aliases
+- [x] Fragments, both named and inline
+- [x] `@skip` and `@include` directives
+
+If you come across a GraphQL feature not supported here, please file an issue.
+
 <a id="filter"></a>
 ## Example: Filter a nested object
 
