@@ -64,8 +64,10 @@ function valueToObjectRepresentation(argObj: Object, name: Name, value: Value, v
       return nestedArgArrayObj[name.value];
     });
   } else {
-    throw new Error(`The inline argument "${name.value}" of kind "${value.kind}" is not supported.
-                    Use variables instead of inline arguments to overcome this limitation.`);
+    // There are no other types of values we know of, but some might be added later and we want
+    // to have a nice error for that case.
+    throw new Error(`The inline argument "${name.value}" of kind "${(value as any).kind}" is not \
+supported. Use variables instead of inline arguments to overcome this limitation.`);
   }
 }
 
