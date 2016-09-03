@@ -8,7 +8,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 describe('result mapper', () => {
   it('can deal with promises', () => {
-    const resolver = (_, root) => Promise.resolve(root).then(val => val + 'fake');
+    const resolver = (_, root) => {
+      return new Promise((res) => {
+        setTimeout(() => {
+          Promise.resolve(root).then(val => res(val + 'fake'));
+        }, 10);
+      });
+    };
 
     function promiseForObject(object): Promise<{[key: string]: any}> {
       const keys = Object.keys(object);
@@ -91,9 +97,9 @@ describe('result mapper', () => {
       }
     `;
 
-
-
-    assert.equal(renderToStaticMarkup(gqlToReact(query)),
-      '<div><span id="my-id">This is text</span><span></span></div>');
+    assert.equal(
+      renderToStaticMarkup(gqlToReact(query)),
+      '<div><span id="my-id">This is text</span><span></span></div>'
+    );
   });
 });
