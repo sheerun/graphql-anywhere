@@ -30,6 +30,12 @@ export type Resolver = (fieldName, rootValue, args, context) => any;
 
 export type VariableMap = { [name: string]: any };
 
+export type ExecContext = {
+  fragmentMap: FragmentMap;
+  contextValue: any;
+  variableValues: VariableMap;
+}
+
 // Based on graphql function from graphql-js:
 // graphql(
 //   schema: GraphQLSchema,
@@ -49,15 +55,19 @@ export default function graphql(
   const queryDefinition = getQueryDefinition(document);
 
   const fragments = getFragmentDefinitions(document);
-  const fragmentMap = createFragmentMap(fragments);
+  const fragmentMap = createFragmentMap(fragments) || {};
+
+  const execContext: ExecContext = {
+    fragmentMap,
+    contextValue,
+    variableValues,
+  };
 
   return executeSelectionSet(
     resolver,
     queryDefinition.selectionSet,
-    variableValues,
-    fragmentMap,
     rootValue,
-    contextValue
+    execContext
   );
 }
 
@@ -66,14 +76,14 @@ const throwOnMissingField = true;
 function executeSelectionSet(
   resolver: Resolver,
   selectionSet: SelectionSet,
-  variables: VariableMap,
-  fragmentMap: FragmentMap,
   rootValue: any,
-  contextValue: any
+  execContext: ExecContext
 ) {
-  if (!fragmentMap) {
-    fragmentMap = {};
-  }
+  const {
+    fragmentMap,
+    contextValue,
+    variableValues: variables,
+  } = execContext;
 
   const result = {};
 
@@ -93,11 +103,9 @@ function executeSelectionSet(
       const fieldResult = executeField(
         resolver,
         selection,
-        variables,
-        fragmentMap,
         included,
         rootValue,
-        contextValue
+        execContext
       );
 
       const resultFieldKey = resultKeyNameFromField(selection);
@@ -113,10 +121,8 @@ function executeSelectionSet(
           const inlineFragmentResult = executeSelectionSet(
             resolver,
             selection.selectionSet,
-            variables,
-            fragmentMap,
             rootValue,
-            contextValue
+            execContext
           );
 
           assign(result, inlineFragmentResult);
@@ -147,10 +153,8 @@ function executeSelectionSet(
           const namedFragmentResult = executeSelectionSet(
             resolver,
             fragment.selectionSet,
-            variables,
-            fragmentMap,
             rootValue,
-            contextValue
+            execContext
           );
 
           assign(result, namedFragmentResult);
@@ -179,12 +183,15 @@ function executeSelectionSet(
 function executeField(
   resolver: Resolver,
   field: Field,
-  variables: VariableMap,
-  fragmentMap: FragmentMap,
   included: Boolean,
   rootValue: any,
-  contextValue: any
+  execContext: ExecContext
 ): any {
+  const {
+    variableValues: variables,
+    contextValue,
+  } = execContext;
+
   const fieldName = field.name.value;
   const args = argumentsObjectFromField(field, variables);
 
@@ -214,10 +221,8 @@ function executeField(
       return executeSelectionSet(
         resolver,
         field.selectionSet,
-        variables,
-        fragmentMap,
         item,
-        contextValue
+        execContext
       );
     });
   }
@@ -226,10 +231,8 @@ function executeField(
   return executeSelectionSet(
     resolver,
     field.selectionSet,
-    variables,
-    fragmentMap,
     result,
-    contextValue
+    execContext
   );
 }
 
