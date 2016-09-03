@@ -10,4 +10,6 @@
 /// <reference path="globals/promises-a-plus/index.d.ts" />
 /// <reference path="globals/redux/index.d.ts" />
 /// <reference path="modules/lodash/index.d.ts" />
+/// <reference path="modules/react-dom/index.d.ts" />
+/// <reference path="modules/react/index.d.ts" />
 /// <reference path="modules/sinon/index.d.ts" />
