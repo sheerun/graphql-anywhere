@@ -30,10 +30,13 @@ export type Resolver = (fieldName, rootValue, args, context) => any;
 
 export type VariableMap = { [name: string]: any };
 
+export type ResultMapper = (values: {[fieldName: string]: any}) => any;
+
 export type ExecContext = {
   fragmentMap: FragmentMap;
   contextValue: any;
   variableValues: VariableMap;
+  resultMapper: ResultMapper;
 }
 
 // Based on graphql function from graphql-js:
@@ -50,7 +53,8 @@ export default function graphql(
   document: Document,
   rootValue?: any,
   contextValue?: any,
-  variableValues?: VariableMap
+  variableValues?: VariableMap,
+  resultMapper?: ResultMapper
 ) {
   const queryDefinition = getQueryDefinition(document);
 
@@ -61,6 +65,7 @@ export default function graphql(
     fragmentMap,
     contextValue,
     variableValues,
+    resultMapper,
   };
 
   return executeSelectionSet(
@@ -175,6 +180,10 @@ function executeSelectionSet(
 
   if (throwOnMissingField) {
     handleFragmentErrors(fragmentErrors);
+  }
+
+  if (execContext.resultMapper) {
+    return execContext.resultMapper(result);
   }
 
   return result;

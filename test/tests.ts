@@ -9,3 +9,4 @@ declare function require(name: string);
 require('source-map-support').install();
 
 import './anywhere';
+import './mapper';
