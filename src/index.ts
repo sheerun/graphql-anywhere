@@ -30,7 +30,7 @@ export type Resolver = (fieldName, rootValue, args, context) => any;
 
 export type VariableMap = { [name: string]: any };
 
-export type ResultMapper = (values: {[fieldName: string]: any}) => any;
+export type ResultMapper = (values: {[fieldName: string]: any}, rootValue: any) => any;
 
 export type ExecContext = {
   fragmentMap: FragmentMap;
@@ -183,7 +183,7 @@ function executeSelectionSet(
   }
 
   if (execContext.resultMapper) {
-    return execContext.resultMapper(result);
+    return execContext.resultMapper(result, rootValue);
   }
 
   return result;

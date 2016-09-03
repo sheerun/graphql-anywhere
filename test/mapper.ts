@@ -3,6 +3,9 @@ import { assert } from 'chai';
 import graphql from '../src';
 import gql from 'graphql-tag';
 
+import { cloneElement, createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+
 describe('result mapper', () => {
   it('can deal with promises', () => {
     const resolver = (_, root) => Promise.resolve(root).then(val => val + 'fake');
@@ -45,5 +48,52 @@ describe('result mapper', () => {
         },
       });
     });
+  });
+
+  it('can construct React elements', () => {
+    const resolver = (fieldName, root, args) => {
+      if (fieldName === 'text') {
+        return args.value;
+      }
+
+      return createElement(fieldName, args);
+    };
+
+    const reactMapper = (childObj, root) => {
+      const reactChildren = Object.keys(childObj).map(key => childObj[key]);
+
+      if (root) {
+        return cloneElement(root, root.props, ...reactChildren);
+      }
+
+      return reactChildren[0];
+    };
+
+    function gqlToReact(query): any {
+      return graphql(
+        resolver,
+        query,
+        '',
+        null,
+        null,
+        reactMapper
+      );
+    }
+
+    const query = gql`
+      {
+        div {
+          s1: span(id: "my-id") {
+            text(value: "This is text")
+          }
+          s2: span
+        }
+      }
+    `;
+
+
+
+    assert.equal(renderToStaticMarkup(gqlToReact(query)),
+      '<div><span id="my-id">This is text</span><span></span></div>');
   });
 });
