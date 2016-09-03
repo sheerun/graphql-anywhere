@@ -18,7 +18,7 @@ Let's come up with some more ideas - below are some use cases to get you started
 ```js
 import graphql from 'graphql-anywhere'
 
-graphql(resolver, document, rootValue?, context?, variables?)
+graphql(resolver, document, rootValue?, context?, variables?, resultMapper?)
 ```
 
 - `resolver`: A single resolver, called for every field on the query.
@@ -27,6 +27,8 @@ graphql(resolver, document, rootValue?, context?, variables?)
 - `rootValue`: The root value passed to the resolver when executing the root fields
 - `context`: A context object passed to the resolver for every field
 - `variables`: A dictionary of variables for the query
+- `resultMapper`: Transform field results after execution.
+    - Signature is: `(resultFields, resultRoot) => any`
 
 ### Supported GraphQL features
 
@@ -226,6 +228,53 @@ assert.deepEqual(result, {
 });
 ```
 
-### Known limitations:
+## Example: Generate React components
 
-- The execution engine is synchronous, so you probably shouldn't use this to query your API. Please submit a PR to add promise functionality, and ideally batching support, like `graphql-js` has! Wouldn't it be cool if you could use this to dynamically query a REST API via GraphQL?
+You can use the `resultMapper` option to convert your results into anything you like. In this case, we convert the result fields into children for a React component:
+
+```js
+const resolver = (fieldName, root, args) => {
+  if (fieldName === 'text') {
+    return args.value;
+  }
+
+  return createElement(fieldName, args);
+};
+
+const reactMapper = (childObj, root) => {
+  const reactChildren = Object.keys(childObj).map(key => childObj[key]);
+
+  if (root) {
+    return cloneElement(root, root.props, ...reactChildren);
+  }
+
+  return reactChildren[0];
+};
+
+function gqlToReact(query): any {
+  return graphql(
+    resolver,
+    query,
+    '',
+    null,
+    null,
+    reactMapper
+  );
+}
+
+const query = gql`
+  {
+    div {
+      s1: span(id: "my-id") {
+        text(value: "This is text")
+      }
+      s2: span
+    }
+  }
+`;
+
+assert.equal(
+  renderToStaticMarkup(gqlToReact(query)),
+  '<div><span id="my-id">This is text</span><span></span></div>'
+);
+```
