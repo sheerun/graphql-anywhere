@@ -216,20 +216,7 @@ function executeField(
   }
 
   if (isArray(result)) {
-    return result.map((item) => {
-      // XXX handle nested arrays
-
-      // null value in array
-      if (isNull(item)) {
-        return null;
-      }
-
-      return executeSelectionSet(
-        field.selectionSet,
-        item,
-        execContext
-      );
-    });
+    return executeSubSelectedArray(field, result, execContext);
   }
 
   // Returned value is an object, and the query has a sub-selection. Recurse.
@@ -238,6 +225,31 @@ function executeField(
     result,
     execContext
   );
+}
+
+function executeSubSelectedArray(
+  field,
+  result,
+  execContext
+) {
+  return result.map((item) => {
+    // XXX handle nested arrays
+
+    // null value in array
+    if (isNull(item)) {
+      return null;
+    }
+
+    if (isArray(item)) {
+      return executeSubSelectedArray(field, item, execContext);
+    }
+
+    return executeSelectionSet(
+      field.selectionSet,
+      item,
+      execContext
+    );
+  });
 }
 
 // Takes a map of errors for fragments of each type. If all of the types have
