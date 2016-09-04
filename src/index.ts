@@ -37,6 +37,7 @@ export type ExecContext = {
   contextValue: any;
   variableValues: VariableMap;
   resultMapper: ResultMapper;
+  resolver: Resolver;
 }
 
 // Based on graphql function from graphql-js:
@@ -66,10 +67,10 @@ export default function graphql(
     contextValue,
     variableValues,
     resultMapper,
+    resolver,
   };
 
   return executeSelectionSet(
-    resolver,
     queryDefinition.selectionSet,
     rootValue,
     execContext
@@ -79,7 +80,6 @@ export default function graphql(
 const throwOnMissingField = true;
 
 function executeSelectionSet(
-  resolver: Resolver,
   selectionSet: SelectionSet,
   rootValue: any,
   execContext: ExecContext
@@ -106,7 +106,6 @@ function executeSelectionSet(
 
     if (isField(selection)) {
       const fieldResult = executeField(
-        resolver,
         selection,
         included,
         rootValue,
@@ -124,7 +123,6 @@ function executeSelectionSet(
       if (included) {
         try {
           const inlineFragmentResult = executeSelectionSet(
-            resolver,
             selection.selectionSet,
             rootValue,
             execContext
@@ -156,7 +154,6 @@ function executeSelectionSet(
       if (included) {
         try {
           const namedFragmentResult = executeSelectionSet(
-            resolver,
             fragment.selectionSet,
             rootValue,
             execContext
@@ -190,7 +187,6 @@ function executeSelectionSet(
 }
 
 function executeField(
-  resolver: Resolver,
   field: Field,
   included: Boolean,
   rootValue: any,
@@ -199,6 +195,7 @@ function executeField(
   const {
     variableValues: variables,
     contextValue,
+    resolver,
   } = execContext;
 
   const fieldName = field.name.value;
@@ -228,7 +225,6 @@ function executeField(
       }
 
       return executeSelectionSet(
-        resolver,
         field.selectionSet,
         item,
         execContext
@@ -238,7 +234,6 @@ function executeField(
 
   // Returned value is an object, and the query has a sub-selection. Recurse.
   return executeSelectionSet(
-    resolver,
     field.selectionSet,
     result,
     execContext
