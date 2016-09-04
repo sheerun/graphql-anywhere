@@ -233,17 +233,17 @@ function executeSubSelectedArray(
   execContext
 ) {
   return result.map((item) => {
-    // XXX handle nested arrays
-
     // null value in array
     if (isNull(item)) {
       return null;
     }
 
+    // This is a nested array, recurse
     if (isArray(item)) {
       return executeSubSelectedArray(field, item, execContext);
     }
 
+    // This is an object, run the selection set on it
     return executeSelectionSet(
       field.selectionSet,
       item,
