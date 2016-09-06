@@ -97,6 +97,46 @@ describe('graphql anywhere', () => {
     });
   });
 
+  it('can traverse nested arrays', () => {
+    const obj = {
+      a: {
+        b: [
+          [{c: 1}, {c: 2}],
+          [{c: 3}, {c: 4}],
+        ],
+      },
+    };
+
+    const resolver = (fieldName, root) => root[fieldName];
+
+    const query = gql`
+      {
+        a {
+          b {
+            c
+          }
+        }
+      }
+    `;
+
+    const result = graphql(
+      resolver,
+      query,
+      obj,
+      null,
+      null
+    );
+
+    assert.deepEqual(result, {
+      a: {
+        b: [
+          [{c: 1}, {c: 2}],
+          [{c: 3}, {c: 4}],
+        ],
+      },
+    });
+  });
+
   it('can use arguments, both inline and variables', () => {
     const resolver = (fieldName, _, args) => args;
 

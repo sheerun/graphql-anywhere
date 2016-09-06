@@ -37,6 +37,7 @@ export type ExecContext = {
   contextValue: any;
   variableValues: VariableMap;
   resultMapper: ResultMapper;
+  resolver: Resolver;
 }
 
 // Based on graphql function from graphql-js:
@@ -66,10 +67,10 @@ export default function graphql(
     contextValue,
     variableValues,
     resultMapper,
+    resolver,
   };
 
   return executeSelectionSet(
-    resolver,
     queryDefinition.selectionSet,
     rootValue,
     execContext
@@ -79,7 +80,6 @@ export default function graphql(
 const throwOnMissingField = true;
 
 function executeSelectionSet(
-  resolver: Resolver,
   selectionSet: SelectionSet,
   rootValue: any,
   execContext: ExecContext
@@ -106,7 +106,6 @@ function executeSelectionSet(
 
     if (isField(selection)) {
       const fieldResult = executeField(
-        resolver,
         selection,
         included,
         rootValue,
@@ -124,7 +123,6 @@ function executeSelectionSet(
       if (included) {
         try {
           const inlineFragmentResult = executeSelectionSet(
-            resolver,
             selection.selectionSet,
             rootValue,
             execContext
@@ -156,7 +154,6 @@ function executeSelectionSet(
       if (included) {
         try {
           const namedFragmentResult = executeSelectionSet(
-            resolver,
             fragment.selectionSet,
             rootValue,
             execContext
@@ -190,7 +187,6 @@ function executeSelectionSet(
 }
 
 function executeField(
-  resolver: Resolver,
   field: Field,
   included: Boolean,
   rootValue: any,
@@ -199,6 +195,7 @@ function executeField(
   const {
     variableValues: variables,
     contextValue,
+    resolver,
   } = execContext;
 
   const fieldName = field.name.value;
@@ -219,30 +216,40 @@ function executeField(
   }
 
   if (isArray(result)) {
-    return result.map((item) => {
-      // XXX handle nested arrays
-
-      // null value in array
-      if (isNull(item)) {
-        return null;
-      }
-
-      return executeSelectionSet(
-        resolver,
-        field.selectionSet,
-        item,
-        execContext
-      );
-    });
+    return executeSubSelectedArray(field, result, execContext);
   }
 
   // Returned value is an object, and the query has a sub-selection. Recurse.
   return executeSelectionSet(
-    resolver,
     field.selectionSet,
     result,
     execContext
   );
+}
+
+function executeSubSelectedArray(
+  field,
+  result,
+  execContext
+) {
+  return result.map((item) => {
+    // null value in array
+    if (isNull(item)) {
+      return null;
+    }
+
+    // This is a nested array, recurse
+    if (isArray(item)) {
+      return executeSubSelectedArray(field, item, execContext);
+    }
+
+    // This is an object, run the selection set on it
+    return executeSelectionSet(
+      field.selectionSet,
+      item,
+      execContext
+    );
+  });
 }
 
 // Takes a map of errors for fragments of each type. If all of the types have
