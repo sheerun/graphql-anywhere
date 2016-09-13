@@ -49,8 +49,6 @@
     "lodash.isundefined": "^3.0.1",
     "lodash.mapvalues": "^4.4.0",
     "lodash.pick": "^4.2.0",
-    "react": "^15.3.1",
-    "react-dom": "^15.3.1"
   },
   "devDependencies": {
     "async": "^2.0.0",
@@ -66,6 +64,8 @@
     "lodash.mapvalues": "^4.3.0",
     "lodash.omit": "^4.2.1",
     "mocha": "^3.0.0",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
     "remap-istanbul": "^0.5.1",
     "source-map-support": "^0.4.0",
     "tslint": "3.15.1",
