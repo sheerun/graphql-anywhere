@@ -99,12 +99,12 @@ describe('graphql anywhere', () => {
 
   it('can traverse nested arrays', () => {
     const obj = {
-      a: {
+      a: [{
         b: [
           [{c: 1}, {c: 2}],
           [{c: 3}, {c: 4}],
         ],
-      },
+      }],
     };
 
     const resolver = (fieldName, root) => root[fieldName];
@@ -128,12 +128,12 @@ describe('graphql anywhere', () => {
     );
 
     assert.deepEqual(result, {
-      a: {
+      a: [{
         b: [
           [{c: 1}, {c: 2}],
           [{c: 3}, {c: 4}],
         ],
-      },
+      }],
     });
   });
 
