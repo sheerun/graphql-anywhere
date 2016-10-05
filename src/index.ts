@@ -26,7 +26,7 @@ import isArray = require('lodash.isarray');
 import isNull = require('lodash.isnull');
 import merge = require('lodash.merge');
 
-export type Resolver = (fieldName, rootValue, args, context) => any;
+export type Resolver = (fieldName: string, rootValue: any, args: any, context: any) => any;
 
 export type VariableMap = { [name: string]: any };
 
