@@ -34,14 +34,11 @@ describe('graphql anywhere', () => {
   });
 
   it('works with directives', () => {
-    const resolver = (_, root) => root + 'fake';
+    const resolver = () => { throw new Error('should not be called'); };
 
     const query = gql`
       {
-        a {
-          b
-          c @skip(if: true)
-        }
+        a @skip(if: true)
       }
     `;
 
@@ -53,11 +50,7 @@ describe('graphql anywhere', () => {
       null
     );
 
-    assert.deepEqual(result, {
-      a: {
-        b: 'fakefake',
-      },
-    });
+    assert.deepEqual(result, {});
   });
 
   it('traverses arrays returned from the resolver', () => {

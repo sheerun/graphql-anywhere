@@ -102,43 +102,43 @@ function executeSelectionSet(
   let fragmentErrors: { [typename: string]: Error } = {};
 
   selectionSet.selections.forEach((selection) => {
-    const included = shouldInclude(selection, variables);
+    if (! shouldInclude(selection, variables)) {
+      // Skip this entirely
+      return;
+    }
 
     if (isField(selection)) {
       const fieldResult = executeField(
         selection,
-        included,
         rootValue,
         execContext
       );
 
       const resultFieldKey = resultKeyNameFromField(selection);
 
-      if (included && fieldResult !== undefined) {
+      if (fieldResult !== undefined) {
         result[resultFieldKey] = fieldResult;
       }
     } else if (isInlineFragment(selection)) {
       const typename = selection.typeCondition.name.value;
 
-      if (included) {
-        try {
-          const inlineFragmentResult = executeSelectionSet(
-            selection.selectionSet,
-            rootValue,
-            execContext
-          );
+      try {
+        const inlineFragmentResult = executeSelectionSet(
+          selection.selectionSet,
+          rootValue,
+          execContext
+        );
 
-          assign(result, inlineFragmentResult);
+        assign(result, inlineFragmentResult);
 
-          if (!fragmentErrors[typename]) {
-            fragmentErrors[typename] = null;
-          }
-        } catch (e) {
-          if (e.extraInfo && e.extraInfo.isFieldError) {
-            fragmentErrors[typename] = e;
-          } else {
-            throw e;
-          }
+        if (!fragmentErrors[typename]) {
+          fragmentErrors[typename] = null;
+        }
+      } catch (e) {
+        if (e.extraInfo && e.extraInfo.isFieldError) {
+          fragmentErrors[typename] = e;
+        } else {
+          throw e;
         }
       }
     } else {
@@ -151,25 +151,23 @@ function executeSelectionSet(
 
       const typename = fragment.typeCondition.name.value;
 
-      if (included) {
-        try {
-          const namedFragmentResult = executeSelectionSet(
-            fragment.selectionSet,
-            rootValue,
-            execContext
-          );
+      try {
+        const namedFragmentResult = executeSelectionSet(
+          fragment.selectionSet,
+          rootValue,
+          execContext
+        );
 
-          assign(result, namedFragmentResult);
+        assign(result, namedFragmentResult);
 
-          if (!fragmentErrors[typename]) {
-            fragmentErrors[typename] = null;
-          }
-        } catch (e) {
-          if (e.extraInfo && e.extraInfo.isFieldError) {
-            fragmentErrors[typename] = e;
-          } else {
-            throw e;
-          }
+        if (!fragmentErrors[typename]) {
+          fragmentErrors[typename] = null;
+        }
+      } catch (e) {
+        if (e.extraInfo && e.extraInfo.isFieldError) {
+          fragmentErrors[typename] = e;
+        } else {
+          throw e;
         }
       }
     }
@@ -188,7 +186,6 @@ function executeSelectionSet(
 
 function executeField(
   field: Field,
-  included: Boolean,
   rootValue: any,
   execContext: ExecContext
 ): any {
