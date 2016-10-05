@@ -12,8 +12,12 @@ describe('graphql anywhere', () => {
       {
         a {
           b
-          c
+          ...frag
         }
+      }
+
+      fragment frag on X {
+        c
       }
     `;
 
@@ -260,6 +264,82 @@ describe('graphql anywhere', () => {
         d: 'd',
         e: 'e',
       },
+    });
+  });
+
+  it('can resolve deeply nested fragments', () => {
+    const resolver = (fieldName, root) => {
+      return root[fieldName];
+    };
+
+    const query = gql`
+      {
+        stringField,
+        numberField,
+        nullField,
+        ...on Item {
+          nestedObj {
+            stringField
+            nullField
+            deepNestedObj {
+              stringField
+              nullField
+            }
+          }
+        }
+        ...on Item {
+          nestedObj {
+            numberField
+            nullField
+            deepNestedObj {
+              numberField
+              nullField
+            }
+          }
+        }
+        ... on Item {
+          nullObject
+        }
+      }
+    `;
+
+    const result: any = {
+      id: 'abcd',
+      stringField: 'This is a string!',
+      numberField: 5,
+      nullField: null,
+      nestedObj: {
+        id: 'abcde',
+        stringField: 'This is a string too!',
+        numberField: 6,
+        nullField: null,
+        deepNestedObj: {
+          stringField: 'This is a deep string',
+          numberField: 7,
+          nullField: null,
+        },
+      },
+      nullObject: null,
+    };
+
+    const queryResult = graphql(resolver, query, result);
+
+    // The result of the query shouldn't contain __data_id fields
+    assert.deepEqual(queryResult, {
+      stringField: 'This is a string!',
+      numberField: 5,
+      nullField: null,
+      nestedObj: {
+        stringField: 'This is a string too!',
+        numberField: 6,
+        nullField: null,
+        deepNestedObj: {
+          stringField: 'This is a deep string',
+          numberField: 7,
+          nullField: null,
+        },
+      },
+      nullObject: null,
     });
   });
 

@@ -48,6 +48,7 @@
     "lodash.isstring": "^4.0.1",
     "lodash.isundefined": "^3.0.1",
     "lodash.mapvalues": "^4.4.0",
+    "lodash.merge": "^4.6.0",
     "lodash.pick": "^4.2.0"
   },
   "devDependencies": {

@@ -24,7 +24,7 @@ import {
 
 import isArray = require('lodash.isarray');
 import isNull = require('lodash.isnull');
-import assign = require('lodash.assign');
+import merge = require('lodash.merge');
 
 export type Resolver = (fieldName, rootValue, args, context) => any;
 
@@ -129,7 +129,7 @@ function executeSelectionSet(
           execContext
         );
 
-        assign(result, inlineFragmentResult);
+        merge(result, inlineFragmentResult);
 
         if (!fragmentErrors[typename]) {
           fragmentErrors[typename] = null;
@@ -158,7 +158,7 @@ function executeSelectionSet(
           execContext
         );
 
-        assign(result, namedFragmentResult);
+        merge(result, namedFragmentResult);
 
         if (!fragmentErrors[typename]) {
           fragmentErrors[typename] = null;
