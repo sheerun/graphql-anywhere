@@ -419,7 +419,7 @@ describe('graphql anywhere', () => {
     const resolver = (fieldName) => ({
       string: 'This is a string',
       int: 5,
-    }[fieldName]);
+    }[fieldName] || 'continue');
 
     // Generate the object!
     const result = graphql(

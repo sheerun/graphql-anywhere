@@ -24,6 +24,7 @@ import {
 
 import isArray = require('lodash.isarray');
 import isNull = require('lodash.isnull');
+import isUndefined = require('lodash.isundefined');
 import merge = require('lodash.merge');
 
 export type Resolver = (fieldName: string, rootValue: any, args: any, context: any) => any;
@@ -207,9 +208,9 @@ function executeField(
 
   // From here down, the field has a selection set, which means it's trying to
   // query a GraphQLObjectType
-  if (isNull(result)) {
-    // Basically any field in a GraphQL response can be null
-    return null;
+  if (isNull(result) || isUndefined(result)) {
+    // Basically any field in a GraphQL response can be null, or missing
+    return result;
   }
 
   if (isArray(result)) {
