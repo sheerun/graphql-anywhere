@@ -27,7 +27,13 @@ import isNull = require('lodash.isnull');
 import isUndefined = require('lodash.isundefined');
 import merge = require('lodash.merge');
 
-export type Resolver = (fieldName: string, rootValue: any, args: any, context: any) => any;
+export type Resolver = (
+  fieldName: string,
+  rootValue: any,
+  args: any,
+  context: any,
+  info: ExecInfo
+) => any;
 
 export type VariableMap = { [name: string]: any };
 
@@ -39,6 +45,10 @@ export type ExecContext = {
   variableValues: VariableMap;
   resultMapper: ResultMapper;
   resolver: Resolver;
+}
+
+export type ExecInfo = {
+  isLeaf: boolean;
 }
 
 // Based on graphql function from graphql-js:
@@ -198,8 +208,11 @@ function executeField(
 
   const fieldName = field.name.value;
   const args = argumentsObjectFromField(field, variables);
+  const info = {
+    isLeaf: ! field.selectionSet,
+  };
 
-  const result = resolver(fieldName, rootValue, args, contextValue);
+  const result = resolver(fieldName, rootValue, args, contextValue, info);
 
   // Handle all scalar types here
   if (! field.selectionSet) {

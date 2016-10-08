@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import graphql from '../src';
+import graphql, { Resolver } from '../src';
 import gql from 'graphql-tag';
 import assign = require('lodash.assign');
 
@@ -515,6 +515,33 @@ describe('graphql anywhere', () => {
           },
         },
       ],
+    });
+  });
+
+  it('allows distinguishing between leaf and non-leaf parts of the query', () => {
+    const leafMap = {};
+
+    const resolver: Resolver = (fieldName, root, args, context, info) => {
+      leafMap[fieldName] = info.isLeaf;
+      return 'continue';
+    };
+
+    const query = gql`
+      {
+        a {
+          b
+        }
+      }
+    `;
+
+    graphql(
+      resolver,
+      query
+    );
+
+    assert.deepEqual(leafMap, {
+      a: false,
+      b: true,
     });
   });
 });
