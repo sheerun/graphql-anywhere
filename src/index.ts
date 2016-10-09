@@ -49,6 +49,7 @@ export type ExecContext = {
 
 export type ExecInfo = {
   isLeaf: boolean;
+  resultKey: string;
 }
 
 // Based on graphql function from graphql-js:
@@ -209,7 +210,7 @@ function executeField(
   const fieldName = field.name.value;
   const args = argumentsObjectFromField(field, variables);
 
-  const info = {
+  const info: ExecInfo = {
     isLeaf: ! field.selectionSet,
     resultKey: resultKeyNameFromField(field),
   };
