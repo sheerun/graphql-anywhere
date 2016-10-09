@@ -208,8 +208,10 @@ function executeField(
 
   const fieldName = field.name.value;
   const args = argumentsObjectFromField(field, variables);
+
   const info = {
     isLeaf: ! field.selectionSet,
+    resultKey: resultKeyNameFromField(field),
   };
 
   const result = resolver(fieldName, rootValue, args, contextValue, info);

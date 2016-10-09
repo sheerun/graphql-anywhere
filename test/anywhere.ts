@@ -518,17 +518,17 @@ describe('graphql anywhere', () => {
     });
   });
 
-  it('allows distinguishing between leaf and non-leaf parts of the query', () => {
+  it('passes info including isLeaf and resultKey', () => {
     const leafMap = {};
 
     const resolver: Resolver = (fieldName, root, args, context, info) => {
-      leafMap[fieldName] = info.isLeaf;
+      leafMap[fieldName] = info;
       return 'continue';
     };
 
     const query = gql`
       {
-        a {
+        alias: a {
           b
         }
       }
@@ -540,8 +540,14 @@ describe('graphql anywhere', () => {
     );
 
     assert.deepEqual(leafMap, {
-      a: false,
-      b: true,
+      a: {
+        isLeaf: false,
+        resultKey: 'alias',
+      },
+      b: {
+        isLeaf: true,
+        resultKey: 'b',
+      },
     });
   });
 });
