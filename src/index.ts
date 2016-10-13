@@ -40,7 +40,7 @@ export type Resolver = (
 export type VariableMap = { [name: string]: any };
 
 export type ResultMapper = (values: {[fieldName: string]: any}, rootValue: any) => any;
-export type FragmentMatcher = (rootValue: any, typeCondition: string) => boolean;
+export type FragmentMatcher = (rootValue: any, typeCondition: string, context: any) => boolean;
 
 export type ExecContext = {
   fragmentMap: FragmentMap;
@@ -151,7 +151,7 @@ function executeSelectionSet(
 
       const typeCondition = fragment.typeCondition.name.value;
 
-      if (execContext.fragmentMatcher(rootValue, typeCondition)) {
+      if (execContext.fragmentMatcher(rootValue, typeCondition, contextValue)) {
         const fragmentResult = executeSelectionSet(
           fragment.selectionSet,
           rootValue,

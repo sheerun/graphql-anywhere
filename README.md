@@ -36,7 +36,7 @@ The last argument to the `graphql` function is a set of `graphql-anywhere`-speci
 - `resultMapper`: Transform field results after execution.
     - Signature is: `(resultFields, resultRoot) => any`
 - `fragmentMatcher`: Decide whether to execute a fragment. Default is to always execute all fragments.
-    - Signature is: `(rootValue, typeCondition) => boolean`
+    - Signature is: `(rootValue, typeCondition, context) => boolean`
 
 #### Resolver info
 

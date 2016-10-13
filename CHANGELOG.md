@@ -1,5 +1,9 @@
 # Change log
 
+### v0.2.1
+
+- Add context arg to `fragmentMatcher`.
+
 ### v0.2.0
 
 - Change the last argument to `options`, move `resultMapper` there, and add `fragmentMatcher`.
