@@ -2,6 +2,8 @@ import {
   Document,
   SelectionSet,
   Field,
+  FragmentDefinition,
+  InlineFragment,
 } from 'graphql';
 
 import {
@@ -38,6 +40,7 @@ export type Resolver = (
 export type VariableMap = { [name: string]: any };
 
 export type ResultMapper = (values: {[fieldName: string]: any}, rootValue: any) => any;
+export type FragmentMatcher = (rootValue: any, typeCondition: string) => boolean;
 
 export type ExecContext = {
   fragmentMap: FragmentMap;
@@ -45,11 +48,17 @@ export type ExecContext = {
   variableValues: VariableMap;
   resultMapper: ResultMapper;
   resolver: Resolver;
+  fragmentMatcher: FragmentMatcher;
 }
 
 export type ExecInfo = {
   isLeaf: boolean;
   resultKey: string;
+}
+
+export type ExecOptions = {
+  resultMapper?: ResultMapper;
+  fragmentMatcher?: FragmentMatcher;
 }
 
 // Based on graphql function from graphql-js:
@@ -67,12 +76,17 @@ export default function graphql(
   rootValue?: any,
   contextValue?: any,
   variableValues?: VariableMap,
-  resultMapper?: ResultMapper
+  execOptions: ExecOptions = {},
 ) {
   const queryDefinition = getQueryDefinition(document);
 
   const fragments = getFragmentDefinitions(document);
   const fragmentMap = createFragmentMap(fragments) || {};
+
+  const resultMapper = execOptions.resultMapper;
+
+  // Default matcher always matches all fragments
+  const fragmentMatcher = execOptions.fragmentMatcher || (() => true);
 
   const execContext: ExecContext = {
     fragmentMap,
@@ -80,6 +94,7 @@ export default function graphql(
     variableValues,
     resultMapper,
     resolver,
+    fragmentMatcher,
   };
 
   return executeSelectionSet(
@@ -88,8 +103,6 @@ export default function graphql(
     execContext
   );
 }
-
-const throwOnMissingField = true;
 
 function executeSelectionSet(
   selectionSet: SelectionSet,
@@ -103,15 +116,6 @@ function executeSelectionSet(
   } = execContext;
 
   const result = {};
-
-  // A map going from a typename to missing field errors thrown on that
-  // typename. This data structure is needed to support union types. For example, if we have
-  // a union type (Apple | Orange) and we only receive fields for fragments on
-  // "Apple", that should not result in an error. But, if at least one of the fragments
-  // for each of "Apple" and "Orange" is missing a field, that should return an error.
-  // (i.e. with this approach, we manage to handle missing fields correctly even for
-  // union types without any knowledge of the GraphQL schema).
-  let fragmentErrors: { [typename: string]: Error } = {};
 
   selectionSet.selections.forEach((selection) => {
     if (! shouldInclude(selection, variables)) {
@@ -131,63 +135,33 @@ function executeSelectionSet(
       if (fieldResult !== undefined) {
         result[resultFieldKey] = fieldResult;
       }
-    } else if (isInlineFragment(selection)) {
-      const typename = selection.typeCondition.name.value;
-
-      try {
-        const inlineFragmentResult = executeSelectionSet(
-          selection.selectionSet,
-          rootValue,
-          execContext
-        );
-
-        merge(result, inlineFragmentResult);
-
-        if (!fragmentErrors[typename]) {
-          fragmentErrors[typename] = null;
-        }
-      } catch (e) {
-        if (e.extraInfo && e.extraInfo.isFieldError) {
-          fragmentErrors[typename] = e;
-        } else {
-          throw e;
-        }
-      }
     } else {
-      // This is a named fragment
-      const fragment = fragmentMap[selection.name.value];
+      let fragment: InlineFragment | FragmentDefinition;
 
-      if (!fragment) {
-        throw new Error(`No fragment named ${selection.name.value}`);
+      if (isInlineFragment(selection)) {
+        fragment = selection;
+      } else {
+        // This is a named fragment
+        fragment = fragmentMap[selection.name.value];
+
+        if (!fragment) {
+          throw new Error(`No fragment named ${selection.name.value}`);
+        }
       }
 
-      const typename = fragment.typeCondition.name.value;
+      const typeCondition = fragment.typeCondition.name.value;
 
-      try {
-        const namedFragmentResult = executeSelectionSet(
+      if (execContext.fragmentMatcher(rootValue, typeCondition)) {
+        const fragmentResult = executeSelectionSet(
           fragment.selectionSet,
           rootValue,
           execContext
         );
 
-        merge(result, namedFragmentResult);
-
-        if (!fragmentErrors[typename]) {
-          fragmentErrors[typename] = null;
-        }
-      } catch (e) {
-        if (e.extraInfo && e.extraInfo.isFieldError) {
-          fragmentErrors[typename] = e;
-        } else {
-          throw e;
-        }
+        merge(result, fragmentResult);
       }
     }
   });
-
-  if (throwOnMissingField) {
-    handleFragmentErrors(fragmentErrors);
-  }
 
   if (execContext.resultMapper) {
     return execContext.resultMapper(result, rootValue);
@@ -264,24 +238,4 @@ function executeSubSelectedArray(
       execContext
     );
   });
-}
-
-// Takes a map of errors for fragments of each type. If all of the types have
-// thrown an error, this function will throw the error associated with one
-// of the types.
-export function handleFragmentErrors(fragmentErrors: { [typename: string]: Error }) {
-  const typenames = Object.keys(fragmentErrors);
-
-  // This is a no-op.
-  if (typenames.length === 0) {
-    return;
-  }
-
-  const errorTypes = typenames.filter((typename) => {
-    return (fragmentErrors[typename] !== null);
-  });
-
-  if (errorTypes.length === Object.keys(fragmentErrors).length) {
-    throw fragmentErrors[errorTypes[0]];
-  }
 }

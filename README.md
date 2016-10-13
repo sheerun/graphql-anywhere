@@ -27,10 +27,20 @@ graphql(resolver, document, rootValue?, context?, variables?, resultMapper?)
 - `rootValue`: The root value passed to the resolver when executing the root fields
 - `context`: A context object passed to the resolver for every field
 - `variables`: A dictionary of variables for the query
+- `options`: Options for execution
+
+#### Options
+
+The last argument to the `graphql` function is a set of `graphql-anywhere`-specific options.
+
 - `resultMapper`: Transform field results after execution.
     - Signature is: `(resultFields, resultRoot) => any`
+- `fragmentMatcher`: Decide whether to execute a fragment. Default is to always execute all fragments.
+    - Signature is: `(rootValue, typeCondition) => boolean`
 
-`info` is an object with supplementary information about execution. Send a PR or open an issue if you need additional information here.
+#### Resolver info
+
+`info`, the 5th argument to the resolver, is an object with supplementary information about execution. Send a PR or open an issue if you need additional information here.
 
 - `isLeaf`: A boolean that is `true` if this resolver is for a leaf field of the query, i.e. one that doesn't have a sub-selection.
 
@@ -262,7 +272,7 @@ function gqlToReact(query): any {
     '',
     null,
     null,
-    reactMapper
+    { resultMapper: reactMapper },
   );
 }
 
