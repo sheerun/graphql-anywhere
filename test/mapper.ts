@@ -45,7 +45,7 @@ describe('result mapper', () => {
       '',
       null,
       null,
-      promiseForObject
+      { resultMapper: promiseForObject },
     );
 
     return result.then((value) => {
@@ -84,7 +84,7 @@ describe('result mapper', () => {
         '',
         null,
         null,
-        reactMapper
+        { resultMapper: reactMapper },
       );
     }
 
@@ -133,7 +133,7 @@ describe('result mapper', () => {
         result,
         null,
         null,
-        mapper
+        { resultMapper: mapper },
       );
 
       return store;
