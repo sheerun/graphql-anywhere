@@ -13,11 +13,6 @@ declare module 'lodash.isequal' {
   export = main.isEqual;
 }
 
-declare module 'lodash.isarray' {
-  import main = require('~lodash/index');
-  export = main.isArray;
-}
-
 declare module 'lodash.isnull' {
   import main = require('~lodash/index');
   export = main.isNull;
