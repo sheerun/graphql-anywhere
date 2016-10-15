@@ -37,6 +37,25 @@ describe('graphql anywhere', () => {
     });
   });
 
+  it('works with enum args', () => {
+    const resolver = (fieldName, root, args) => args.value;
+
+    const query = gql`
+      {
+        a(value: ENUM_VALUE)
+      }
+    `;
+
+    const result = graphql(
+      resolver,
+      query,
+    );
+
+    assert.deepEqual(result, {
+      a: 'ENUM_VALUE',
+    });
+  });
+
   it('works with directives', () => {
     const resolver = () => { throw new Error('should not be called'); };
 

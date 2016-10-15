@@ -6,6 +6,7 @@ import {
   BooleanValue,
   ObjectValue,
   ListValue,
+  EnumValue,
   Variable,
   InlineFragment,
   Value,
@@ -42,6 +43,10 @@ function isList(value: Value): value is ListValue {
   return value.kind === 'ListValue';
 }
 
+function isEnum(value: Value): value is EnumValue {
+  return value.kind === 'EnumValue';
+}
+
 function valueToObjectRepresentation(argObj: Object, name: Name, value: Value, variables?: Object) {
   if (isNumberValue(value)) {
     argObj[name.value] = Number(value.value);
@@ -63,6 +68,8 @@ function valueToObjectRepresentation(argObj: Object, name: Name, value: Value, v
       valueToObjectRepresentation(nestedArgArrayObj, name, listValue, variables);
       return nestedArgArrayObj[name.value];
     });
+  } else if (isEnum(value)) {
+    argObj[name.value] = value.value;
   } else {
     // There are no other types of values we know of, but some might be added later and we want
     // to have a nice error for that case.
