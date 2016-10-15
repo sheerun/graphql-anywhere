@@ -1,5 +1,9 @@
 # Change log
 
+### v0.2.3
+
+- Remove dep on lodash.isarray
+
 ### v0.2.2
 
 - Add enum support

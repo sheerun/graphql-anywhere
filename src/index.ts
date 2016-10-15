@@ -24,7 +24,6 @@ import {
   argumentsObjectFromField,
 } from './storeUtils';
 
-import isArray = require('lodash.isarray');
 import isNull = require('lodash.isnull');
 import isUndefined = require('lodash.isundefined');
 import merge = require('lodash.merge');
@@ -203,7 +202,7 @@ function executeField(
     return result;
   }
 
-  if (isArray(result)) {
+  if (Array.isArray(result)) {
     return executeSubSelectedArray(field, result, execContext);
   }
 
@@ -227,7 +226,7 @@ function executeSubSelectedArray(
     }
 
     // This is a nested array, recurse
-    if (isArray(item)) {
+    if (Array.isArray(item)) {
       return executeSubSelectedArray(field, item, execContext);
     }
 
