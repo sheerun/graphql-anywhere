@@ -1,5 +1,9 @@
 # Change log
 
+### v0.2.2
+
+- Add enum support
+
 ### v0.2.1
 
 - Add context arg to `fragmentMatcher`.
