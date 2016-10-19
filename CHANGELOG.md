@@ -1,5 +1,9 @@
 # Change log
 
+### v0.2.4
+
+- Added support for fragments. If there are multiple fragments in the provided document, the first one is used as the query.
+
 ### v0.2.3
 
 - Remove dep on lodash.isarray

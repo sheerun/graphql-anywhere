@@ -129,3 +129,19 @@ export function addFragmentsToDocument(queryDoc: Document,
     definitions: queryDoc.definitions.concat(fragments),
   }) as Document;
 }
+
+export function getMainDefinition(queryDoc: Document): OperationDefinition | FragmentDefinition {
+  checkDocument(queryDoc);
+
+  try {
+    return getQueryDefinition(queryDoc);
+  } catch (e) {
+    try {
+      const fragments = getFragmentDefinitions(queryDoc);
+
+      return fragments[0];
+    } catch (e) {
+      throw new Error(`Expected a parsed GraphQL query with a query or a fragment.`)
+    }
+  }
+}

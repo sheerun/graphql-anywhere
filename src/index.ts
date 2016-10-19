@@ -7,7 +7,7 @@ import {
 } from 'graphql';
 
 import {
-  getQueryDefinition,
+  getMainDefinition,
   getFragmentDefinitions,
   createFragmentMap,
   FragmentMap,
@@ -77,7 +77,7 @@ export default function graphql(
   variableValues?: VariableMap,
   execOptions: ExecOptions = {},
 ) {
-  const queryDefinition = getQueryDefinition(document);
+  const mainDefinition = getMainDefinition(document);
 
   const fragments = getFragmentDefinitions(document);
   const fragmentMap = createFragmentMap(fragments) || {};
@@ -97,7 +97,7 @@ export default function graphql(
   };
 
   return executeSelectionSet(
-    queryDefinition.selectionSet,
+    mainDefinition.selectionSet,
     rootValue,
     execContext
   );

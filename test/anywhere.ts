@@ -569,4 +569,45 @@ describe('graphql anywhere', () => {
       },
     });
   });
+
+  it('can filter GraphQL results', () => {
+    const data = {
+      alias: 'Bob',
+      name: 'Wrong',
+      height: 1.89,
+      avatar: {
+        square: 'abc',
+        circle: 'def',
+        triangle: 'qwe',
+      },
+    };
+
+    const fragment = gql`
+      fragment PersonDetails on Person {
+        alias: name
+        height(unit: METERS)
+        avatar {
+          square
+          ... on Avatar {
+            circle
+          }
+        }
+      }
+    `;
+
+    const resolver: Resolver = (fieldName, root, args, context, info) => {
+      return root[info.resultKey];
+    };
+
+    const filtered = graphql(resolver, fragment, data);
+
+    assert.deepEqual(filtered, {
+      alias: 'Bob',
+      height: 1.89,
+      avatar: {
+        square: 'abc',
+        circle: 'def',
+      },
+    });
+  });
 });
