@@ -18,7 +18,7 @@ Let's come up with some more ideas - below are some use cases to get you started
 ```js
 import graphql from 'graphql-anywhere'
 
-graphql(resolver, document, rootValue?, context?, variables?, resultMapper?)
+graphql(resolver, document, rootValue?, context?, variables?, options?)
 ```
 
 - `resolver`: A single resolver, called for every field on the query.
