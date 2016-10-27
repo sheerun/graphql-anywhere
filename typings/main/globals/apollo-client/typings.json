@@ -1,8 +1,0 @@
-{
-  "resolution": "main",
-  "tree": {
-    "src": "/Users/sashko/git/graphql-anywhere/ambient.d.ts",
-    "raw": "file:./ambient.d.ts",
-    "typings": "/Users/sashko/git/graphql-anywhere/ambient.d.ts"
-  }
-}

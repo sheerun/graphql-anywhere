@@ -51,6 +51,13 @@
     "lodash.pick": "^4.2.0"
   },
   "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/isomorphic-fetch": "0.0.31",
+    "@types/lodash": "^4.14.37",
+    "@types/mocha": "^2.2.32",
+    "@types/node": "^6.0.46",
+    "@types/react": "^0.14.43",
+    "@types/react-dom": "^0.14.18",
     "async": "^2.0.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
@@ -69,7 +76,7 @@
     "remap-istanbul": "^0.5.1",
     "source-map-support": "^0.4.0",
     "tslint": "3.15.1",
-    "typescript": "^2.0.0",
-    "typings": "^1.0.0"
+    "typed-graphql": "^1.0.2",
+    "typescript": "^2.0.0"
   }
 }

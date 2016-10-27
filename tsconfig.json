@@ -3,6 +3,7 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
+    "lib": ["es6", "dom"],
     "sourceMap": true,
     "declaration": true,
     "noImplicitAny": false,
@@ -12,7 +13,7 @@
     "removeComments": true
   },
   "files": [
-    "typings/main/index.d.ts",
+    "typings.d.ts",
     "src/index.ts",
     "test/tests.ts"
    ]

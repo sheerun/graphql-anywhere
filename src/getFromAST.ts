@@ -141,7 +141,7 @@ export function getMainDefinition(queryDoc: Document): OperationDefinition | Fra
 
       return fragments[0];
     } catch (e) {
-      throw new Error(`Expected a parsed GraphQL query with a query or a fragment.`)
+      throw new Error(`Expected a parsed GraphQL query with a query or a fragment.`);
     }
   }
 }
