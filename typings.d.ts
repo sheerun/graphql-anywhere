@@ -1,4 +1,5 @@
 /// <reference types="typed-graphql" />
+/// <reference types="mocha" />
 
 /*
 
