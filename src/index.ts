@@ -28,7 +28,7 @@ import {
   filter,
   check,
   propType,
-} from './fragments';
+} from './utilities';
 
 export {
   filter,

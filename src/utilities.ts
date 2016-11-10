@@ -4,7 +4,7 @@ import {
 
 import graphql from './index';
 
-export function filter(fragment: Document, data: any): any {
+export function filter(doc: Document, data: any): any {
   const resolver = (
     fieldName: string,
     root: any,
@@ -15,14 +15,14 @@ export function filter(fragment: Document, data: any): any {
     return root[info.resultKey];
   };
 
-  return graphql(resolver, fragment, data);
+  return graphql(resolver, doc, data);
 }
 
 // TODO: we should probably make check call propType and then throw,
 // rather than the other way round, to avoid constructing stack traces
 // for things like oneOf uses in React. At this stage I doubt many people
 // are using this like that, but in the future, who knows?
-export function check(fragment: Document, data: any): void {
+export function check(doc: Document, data: any): void {
   const resolver = (
     fieldName: string,
     root: any,
@@ -36,7 +36,7 @@ export function check(fragment: Document, data: any): void {
     return root[info.resultKey];
   };
 
-  graphql(resolver, fragment, data, {}, {}, {
+  graphql(resolver, doc, data, {}, {}, {
     fragmentMatcher: () => false,
   });
 }
@@ -94,11 +94,11 @@ function createChainableTypeChecker(validate) {
   return chainedCheckType;
 }
 
-export function propType(fragment) {
+export function propType(doc) {
   return createChainableTypeChecker((props, propName) => {
     const prop = props[propName];
     try {
-      check(fragment, prop);
+      check(doc, prop);
       return null;
     } catch (e) {
       // Need a much better error.
