@@ -24,17 +24,11 @@ import {
   argumentsObjectFromField,
 } from './storeUtils';
 
-import {
-  filter,
-  check,
-  propType,
-} from './utilities';
-
 export {
   filter,
   check,
   propType,
-};
+} from './utilities';
 
 import isNull = require('lodash.isnull');
 import isUndefined = require('lodash.isundefined');
