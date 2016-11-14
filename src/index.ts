@@ -24,6 +24,12 @@ import {
   argumentsObjectFromField,
 } from './storeUtils';
 
+export {
+  filter,
+  check,
+  propType,
+} from './utilities';
+
 import isNull = require('lodash.isnull');
 import isUndefined = require('lodash.isundefined');
 import merge = require('lodash.merge');
