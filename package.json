@@ -1,6 +1,6 @@
 {
   "name": "graphql-anywhere",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Run GraphQL queries with no schema and just one resolver",
   "main": "./lib/src/index.js",
   "typings": "./lib/src/index.d.ts",

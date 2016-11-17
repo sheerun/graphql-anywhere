@@ -1,5 +1,11 @@
 # Change log
 
+### v0.3.0
+
+Add a set of utilities for easily filtering objects with fragments and queries.
+
+This is essentially the code that lived in https://www.npmjs.com/package/graphql-fragments
+
 ### v0.2.4
 
 - Added support for fragments. If there are multiple fragments in the provided document, the first one is used as the query.
