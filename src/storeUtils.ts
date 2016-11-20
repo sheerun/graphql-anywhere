@@ -1,23 +1,23 @@
 import {
-  Field,
-  IntValue,
-  FloatValue,
-  StringValue,
-  BooleanValue,
-  ObjectValue,
-  ListValue,
-  EnumValue,
-  Variable,
-  InlineFragment,
-  Value,
-  Selection,
-  GraphQLResult,
-  Name,
+  FieldNode,
+  IntValueNode,
+  FloatValueNode,
+  StringValueNode,
+  BooleanValueNode,
+  ObjectValueNode,
+  ListValueNode,
+  EnumValueNode,
+  VariableNode,
+  InlineFragmentNode,
+  ValueNode,
+  SelectionNode,
+  ExecutionResult,
+  NameNode,
 } from 'graphql';
 
-type ScalarValue = StringValue | BooleanValue | EnumValue;
+type ScalarValue = StringValueNode | BooleanValueNode | EnumValueNode;
 
-function isScalarValue(value: Value): value is ScalarValue {
+function isScalarValue(value: ValueNode): value is ScalarValue {
   const SCALAR_TYPES = {
     StringValue: 1,
     BooleanValue: 1,
@@ -27,9 +27,9 @@ function isScalarValue(value: Value): value is ScalarValue {
   return !! SCALAR_TYPES[value.kind];
 }
 
-type NumberValue = IntValue | FloatValue;
+type NumberValue = IntValueNode | FloatValueNode;
 
-function isNumberValue(value: Value): value is NumberValue {
+function isNumberValue(value: ValueNode): value is NumberValue {
   const NUMBER_TYPES = {
     IntValue: 1,
     FloatValue: 1,
@@ -38,19 +38,19 @@ function isNumberValue(value: Value): value is NumberValue {
   return NUMBER_TYPES[value.kind];
 }
 
-function isVariable(value: Value): value is Variable {
+function isVariable(value: ValueNode): value is VariableNode {
   return value.kind === 'Variable';
 }
 
-function isObject(value: Value): value is ObjectValue {
+function isObject(value: ValueNode): value is ObjectValueNode {
   return value.kind === 'ObjectValue';
 }
 
-function isList(value: Value): value is ListValue {
+function isList(value: ValueNode): value is ListValueNode {
   return value.kind === 'ListValue';
 }
 
-function valueToObjectRepresentation(argObj: any, name: Name, value: Value, variables?: Object) {
+function valueToObjectRepresentation(argObj: any, name: NameNode, value: ValueNode, variables?: Object) {
   if (isNumberValue(value)) {
     argObj[name.value] = Number(value.value);
   } else if (isScalarValue(value)) {
@@ -79,7 +79,7 @@ supported. Use variables instead of inline arguments to overcome this limitation
   }
 }
 
-export function argumentsObjectFromField(field: Field, variables: Object): Object {
+export function argumentsObjectFromField(field: FieldNode, variables: Object): Object {
   if (field.arguments && field.arguments.length) {
     const argObj: Object = {};
     field.arguments.forEach(({name, value}) => valueToObjectRepresentation(
@@ -90,20 +90,20 @@ export function argumentsObjectFromField(field: Field, variables: Object): Objec
   return null;
 }
 
-export function resultKeyNameFromField(field: Field): string {
+export function resultKeyNameFromField(field: FieldNode): string {
   return field.alias ?
     field.alias.value :
     field.name.value;
 }
 
-export function isField(selection: Selection): selection is Field {
+export function isField(selection: SelectionNode): selection is FieldNode {
   return selection.kind === 'Field';
 }
 
-export function isInlineFragment(selection: Selection): selection is InlineFragment {
+export function isInlineFragment(selection: SelectionNode): selection is InlineFragmentNode {
   return selection.kind === 'InlineFragment';
 }
 
-export function graphQLResultHasError(result: GraphQLResult) {
+export function graphQLResultHasError(result: ExecutionResult) {
   return result.errors && result.errors.length;
 }

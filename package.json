@@ -39,6 +39,7 @@
     "@types/node": "^6.0.46",
     "@types/react": "^0.14.43",
     "@types/react-dom": "^0.14.18",
+    "@types/graphql": "^0.8.0",
     "async": "^2.0.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
@@ -54,7 +55,6 @@
     "remap-istanbul": "^0.5.1",
     "source-map-support": "^0.4.0",
     "tslint": "3.15.1",
-    "typed-graphql": "^1.0.2",
     "typescript": "^2.0.0"
   }
 }

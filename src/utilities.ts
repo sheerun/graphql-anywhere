@@ -1,10 +1,10 @@
 import {
-  Document,
+  DocumentNode,
 } from 'graphql';
 
 import graphql from './index';
 
-export function filter(doc: Document, data: any): any {
+export function filter(doc: DocumentNode, data: any): any {
   const resolver = (
     fieldName: string,
     root: any,
@@ -22,7 +22,7 @@ export function filter(doc: Document, data: any): any {
 // rather than the other way round, to avoid constructing stack traces
 // for things like oneOf uses in React. At this stage I doubt many people
 // are using this like that, but in the future, who knows?
-export function check(doc: Document, data: any): void {
+export function check(doc: DocumentNode, data: any): void {
   const resolver = (
     fieldName: string,
     root: any,
