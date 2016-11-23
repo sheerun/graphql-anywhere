@@ -1,5 +1,9 @@
 # Change log
 
+### v1.0.0
+
+Releasing 0.3.0 as 1.0.0 in order to be explicit about Semantic Versioning.
+
 ### v0.3.0
 
 Add a set of utilities for easily filtering objects with fragments and queries.
