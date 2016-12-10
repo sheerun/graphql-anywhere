@@ -15,7 +15,7 @@ import {
   Name,
 } from 'graphql';
 
-import includes = require('lodash.includes');
+import { includes } from 'lodash';
 
 type ScalarValue = StringValue | BooleanValue | EnumValue;
 

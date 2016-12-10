@@ -30,9 +30,7 @@ export {
   propType,
 } from './utilities';
 
-import isNull = require('lodash.isnull');
-import isUndefined = require('lodash.isundefined');
-import merge = require('lodash.merge');
+import { isNull, isUndefined, merge } from 'lodash';
 
 export type Resolver = (
   fieldName: string,

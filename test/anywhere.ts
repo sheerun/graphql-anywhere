@@ -2,7 +2,7 @@ import { assert } from 'chai';
 
 import graphql, { Resolver } from '../src';
 import gql from 'graphql-tag';
-import assign = require('lodash.assign');
+import { assign } from 'lodash';
 
 describe('graphql anywhere', () => {
   it('does basic things', () => {

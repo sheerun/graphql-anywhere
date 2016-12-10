@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { cloneElement, createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import mapValues = require('lodash.mapvalues');
+import { mapValues } from 'lodash';
 
 describe('result mapper', () => {
   it('can deal with promises', () => {
