@@ -31,9 +31,6 @@
   ],
   "author": "Sashko Stubailo <sashko@stubailo.com>",
   "license": "MIT",
-  "dependencies": {
-    "lodash": "^4.6.0"
-  },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/isomorphic-fetch": "0.0.31",

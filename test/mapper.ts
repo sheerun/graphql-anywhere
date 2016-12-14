@@ -6,8 +6,6 @@ import gql from 'graphql-tag';
 import { cloneElement, createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { mapValues } from 'lodash';
-
 describe('result mapper', () => {
   it('can deal with promises', () => {
     const resolver = (_, root) => {
@@ -103,66 +101,5 @@ describe('result mapper', () => {
       renderToStaticMarkup(gqlToReact(query)),
       '<div><span id="my-id">This is text</span><span></span></div>'
     );
-  });
-
-  it('can normalize data with the mapper', () => {
-    function normalize(query, result) {
-      const resolver = (fieldName, rootValue) => rootValue[fieldName];
-
-      const store = {};
-
-      const mapper = (childObj, rootValue) => {
-        childObj = mapValues(childObj, (value) => {
-          if (value.id) {
-            return { $id: value.id };
-          }
-
-          return value;
-        });
-
-        if (childObj.id) {
-          store[childObj.id] = childObj;
-        }
-
-        return childObj;
-      };
-
-      graphql(
-        resolver,
-        query,
-        result,
-        null,
-        null,
-        { resultMapper: mapper },
-      );
-
-      return store;
-    }
-
-    // Let's say we have unique IDs
-    const nestedResult = {
-      result: [{
-        id: 1, title: 'Some Article',
-        author: { id: 3, name: 'Dan' },
-      }, {
-        id: 2, title: 'Other Article',
-        author: { id: 3, name: 'Dan' },
-      }],
-    };
-
-    const graphQLQuery = gql`{
-      result {
-        id, title
-        author { id, name }
-      }
-    }`;
-
-    const store = normalize(graphQLQuery, nestedResult);
-
-    assert.deepEqual(store, {
-      1: { id: 1, title: 'Some Article', author: { $id: 3 } },
-      2: { id: 2, title: 'Other Article', author: { $id: 3 } },
-      3: { id: 3, name: 'Dan' },
-    });
   });
 });

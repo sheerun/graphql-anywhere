@@ -15,20 +15,27 @@ import {
   Name,
 } from 'graphql';
 
-import { includes } from 'lodash';
-
 type ScalarValue = StringValue | BooleanValue | EnumValue;
 
 function isScalarValue(value: Value): value is ScalarValue {
-  const SCALAR_TYPES = ['StringValue', 'BooleanValue', 'EnumValue'];
-  return includes(SCALAR_TYPES, value.kind);
+  const SCALAR_TYPES = {
+    StringValue: 1,
+    BooleanValue: 1,
+    EnumValue: 1,
+  };
+
+  return !! SCALAR_TYPES[value.kind];
 }
 
 type NumberValue = IntValue | FloatValue;
 
 function isNumberValue(value: Value): value is NumberValue {
-  const NUMBER_TYPES = ['IntValue', 'FloatValue'];
-  return includes(NUMBER_TYPES, value.kind);
+  const NUMBER_TYPES = {
+    IntValue: 1,
+    FloatValue: 1,
+  };
+
+  return NUMBER_TYPES[value.kind];
 }
 
 function isVariable(value: Value): value is Variable {

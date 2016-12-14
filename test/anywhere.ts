@@ -2,7 +2,6 @@ import { assert } from 'chai';
 
 import graphql, { Resolver } from '../src';
 import gql from 'graphql-tag';
-import { assign } from 'lodash';
 
 describe('graphql anywhere', () => {
   it('does basic things', () => {
@@ -492,9 +491,12 @@ describe('graphql anywhere', () => {
     // correctly handle the root object, values by ID, and scalar leafs.
     const resolver = (fieldName, rootValue, args, context): any => {
       if (!rootValue) {
-        return context.result.map((id) => assign({}, context.entities.articles[id], {
-          __typename: 'articles',
-        }));
+        return context.result.map((id) => {
+          return {
+            ...context.entities.articles[id],
+            __typename: 'articles',
+          };
+        });
       }
 
       const typename = rootValue.__typename;
@@ -502,9 +504,10 @@ describe('graphql anywhere', () => {
       if (typename && schema[typename] && schema[typename][fieldName]) {
         // Get the target type, and get it from entities by ID
         const targetType: string = schema[typename][fieldName];
-        return assign({}, context.entities[targetType][rootValue[fieldName]], {
+        return {
+          ...context.entities[targetType][rootValue[fieldName]],
           __typename: targetType,
-        });
+        };
       }
 
       // This field is just a scalar

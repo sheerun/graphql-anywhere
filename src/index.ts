@@ -30,8 +30,6 @@ export {
   propType,
 } from './utilities';
 
-import { isNull, isUndefined, merge } from 'lodash';
-
 export type Resolver = (
   fieldName: string,
   rootValue: any,
@@ -201,7 +199,7 @@ function executeField(
 
   // From here down, the field has a selection set, which means it's trying to
   // query a GraphQLObjectType
-  if (isNull(result) || isUndefined(result)) {
+  if (result === null || typeof result === 'undefined') {
     // Basically any field in a GraphQL response can be null, or missing
     return result;
   }
@@ -225,7 +223,7 @@ function executeSubSelectedArray(
 ) {
   return result.map((item) => {
     // null value in array
-    if (isNull(item)) {
+    if (item === null) {
       return null;
     }
 
@@ -240,5 +238,33 @@ function executeSubSelectedArray(
       item,
       execContext
     );
+  });
+}
+
+function merge(dest, src) {
+  if (
+    src === null ||
+    typeof src === 'undefined' ||
+    typeof src === 'string' ||
+    typeof src === 'number' ||
+    typeof src === 'boolean' ||
+    Array.isArray(src)
+  ) {
+    // These types just override whatever was in dest
+    return src;
+  }
+
+  // Merge sub-objects
+  Object.keys(dest).forEach((destKey) => {
+    if (src.hasOwnProperty(destKey)) {
+      merge(dest[destKey], src[destKey]);
+    }
+  });
+
+  // Add props only on src
+  Object.keys(src).forEach((srcKey) => {
+    if (! dest.hasOwnProperty(srcKey)) {
+      dest[srcKey] = src[srcKey];
+    }
   });
 }
