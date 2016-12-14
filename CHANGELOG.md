@@ -1,5 +1,9 @@
 # Change log
 
+### v1.1.1
+
+Roll back failed update in 1.1.0
+
 ### v1.0.0
 
 Releasing 0.3.0 as 1.0.0 in order to be explicit about Semantic Versioning.
