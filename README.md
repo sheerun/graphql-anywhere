@@ -77,7 +77,7 @@ import { propType } from 'graphql-anywhere'
 
 X.propTypes = {
   foo: propType(doc),
-  bar: foo: propType(doc).isRequired,
+  bar: propType(doc).isRequired,
 }
 
 ```
