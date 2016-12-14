@@ -1,5 +1,9 @@
 # Change log
 
+### v1.1.2
+
+Remove dependency on lodash completely, so this package now has zero runtime dependencies. Nice!
+
 ### v1.1.1
 
 Roll back failed update in 1.1.0
