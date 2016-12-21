@@ -1,5 +1,9 @@
 # Change log
 
+### vNext
+
+Remove a circular dependency
+
 ### v2.0.0
 
 Change typings from `typed-graphql` to `@types/graphql`.

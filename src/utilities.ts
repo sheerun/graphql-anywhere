@@ -2,7 +2,7 @@ import {
   DocumentNode,
 } from 'graphql';
 
-import graphql from './index';
+import { graphql } from './graphql';
 
 export function filter(doc: DocumentNode, data: any): any {
   const resolver = (
