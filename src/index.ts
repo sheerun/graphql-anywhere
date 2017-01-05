@@ -1,9 +1,9 @@
 import {
-  Document,
-  SelectionSet,
-  Field,
-  FragmentDefinition,
-  InlineFragment,
+  DocumentNode,
+  SelectionSetNode,
+  FieldNode,
+  FragmentDefinitionNode,
+  InlineFragmentNode,
 } from 'graphql';
 
 import {
@@ -73,7 +73,7 @@ export type ExecOptions = {
 // ): Promise<GraphQLResult>
 export default function graphql(
   resolver: Resolver,
-  document: Document,
+  document: DocumentNode,
   rootValue?: any,
   contextValue?: any,
   variableValues?: VariableMap,
@@ -106,7 +106,7 @@ export default function graphql(
 }
 
 function executeSelectionSet(
-  selectionSet: SelectionSet,
+  selectionSet: SelectionSetNode,
   rootValue: any,
   execContext: ExecContext
 ) {
@@ -137,7 +137,7 @@ function executeSelectionSet(
         result[resultFieldKey] = fieldResult;
       }
     } else {
-      let fragment: InlineFragment | FragmentDefinition;
+      let fragment: InlineFragmentNode | FragmentDefinitionNode;
 
       if (isInlineFragment(selection)) {
         fragment = selection;
@@ -172,7 +172,7 @@ function executeSelectionSet(
 }
 
 function executeField(
-  field: Field,
+  field: FieldNode,
   rootValue: any,
   execContext: ExecContext
 ): any {
