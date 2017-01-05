@@ -1,5 +1,9 @@
 # Change log
 
+### v2.0.0
+
+Change typings from `typed-graphql` to `@types/graphql`.
+
 ### v1.1.2
 
 Remove dependency on lodash completely, so this package now has zero runtime dependencies. Nice!
