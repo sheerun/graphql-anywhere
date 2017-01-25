@@ -217,6 +217,39 @@ describe('graphql anywhere', () => {
     });
   });
 
+  it('will tolerate missing variables', () => {
+    const resolver = (fieldName, _, args) => args;
+
+    const query = gql`
+      {
+        variables(int: $int, float: $float, string: $string, missing: $missing)
+      }
+    `;
+
+    const variables = {
+      int: 6,
+      float: 6.28,
+      string: 'varString',
+    };
+
+    const result = graphql(
+      resolver,
+      query,
+      null,
+      null,
+      variables,
+    );
+
+    assert.deepEqual(result, {
+      variables: {
+        int: 6,
+        float: 6.28,
+        string: 'varString',
+        missing: undefined,
+      },
+    });
+  });
+
   it('can use skip and include', () => {
     const resolver = (fieldName) => fieldName;
 
