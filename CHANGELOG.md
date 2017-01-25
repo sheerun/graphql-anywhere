@@ -2,6 +2,9 @@
 
 ### vNext
 
+### v2.1.0
+
+Tolerate missing variables (to support optional arguments)
 Remove a circular dependency
 
 ### v2.0.0
