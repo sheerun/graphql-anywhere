@@ -646,4 +646,48 @@ describe('graphql anywhere', () => {
       },
     });
   });
+
+  it('can handle mutations', () => {
+    const resolver = (fieldName, root, args) => {
+      if (fieldName === 'operateOnNumbers') {
+        return args;
+      } else if (fieldName === 'add') {
+        return root.a + root.b;
+      } else if (fieldName === 'subtract') {
+        return root.a - root.b;
+      } else if (fieldName === 'multiply') {
+        return root.a * root.b;
+      } else if (fieldName === 'divide') {
+        return root.a / root.b;
+      }
+    };
+
+    const query = gql`
+      mutation {
+        operateOnNumbers(a: 10, b: 2) {
+          add
+          subtract
+          multiply
+          divide
+        }
+      }
+    `;
+
+    const result = graphql(
+      resolver,
+      query,
+      '',
+      null,
+      null
+    );
+
+    assert.deepEqual(result, {
+      operateOnNumbers: {
+        add: 12,
+        subtract: 8,
+        multiply: 20,
+        divide: 5,
+      },
+    });
+  });
 });
