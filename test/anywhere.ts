@@ -394,6 +394,46 @@ describe('graphql anywhere', () => {
     });
   });
 
+  it('can resolve deeply nested fragments with arrays', () => {
+    const resolver = (fieldName, root) => {
+      return root[fieldName];
+    };
+
+    const query = gql`
+      {
+        ...on Item {
+          array { id field1 }
+        }
+        ...on Item {
+          array { id field2 }
+        }
+        ...on Item {
+          array { id field3 }
+        }
+      }
+    `;
+
+    const result: any = {
+      array: [{
+        id: 'abcde',
+        field1: 1,
+        field2: 2,
+        field3: 3,
+      }],
+    };
+
+    const queryResult = graphql(resolver, query, result);
+
+    assert.deepEqual(queryResult, {
+      array: [{
+        id: 'abcde',
+        field1: 1,
+        field2: 2,
+        field3: 3,
+      }],
+    });
+  });
+
   it('readme example', () => {
     // I don't need all this stuff!
     const gitHubAPIResponse = {
