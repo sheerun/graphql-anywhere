@@ -243,8 +243,7 @@ function merge(dest, src) {
     typeof src === 'undefined' ||
     typeof src === 'string' ||
     typeof src === 'number' ||
-    typeof src === 'boolean' ||
-    Array.isArray(src)
+    typeof src === 'boolean'
   ) {
     // These types just override whatever was in dest
     return src;
