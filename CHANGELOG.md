@@ -2,6 +2,10 @@
 
 ### vNext
 
+### v3.0.0
+- Fix mishandling of arrays in fragments
+- Operation definition can also be a mutation (instead of only query)
+
 ### v2.1.0
 
 Tolerate missing variables (to support optional arguments)
