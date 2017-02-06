@@ -133,11 +133,15 @@ export function getMainDefinition(queryDoc: DocumentNode): OperationDefinitionNo
     return getQueryDefinition(queryDoc);
   } catch (e) {
     try {
-      const fragments = getFragmentDefinitions(queryDoc);
-
-      return fragments[0];
+      return getMutationDefinition(queryDoc);
     } catch (e) {
-      throw new Error(`Expected a parsed GraphQL query with a query or a fragment.`);
+      try {
+        const fragments = getFragmentDefinitions(queryDoc);
+
+        return fragments[0];
+      } catch (e) {
+        throw new Error(`Expected a parsed GraphQL query with a query, mutation, or a fragment.`);
+      }
     }
   }
 }
