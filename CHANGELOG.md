@@ -2,7 +2,7 @@
 
 ### vNext
 
-### v3.0.0
+### v2.2.0
 - Fix mishandling of arrays in fragments
 - Operation definition can also be a mutation (instead of only query)
 
