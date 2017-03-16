@@ -24,7 +24,7 @@ describe('result mapper', () => {
         values => values.reduce((resolvedObject, value, i) => {
           resolvedObject[keys[i]] = value;
           return resolvedObject;
-        }, Object.create(null))
+        }, Object.create(null)),
       );
     }
 
@@ -99,7 +99,7 @@ describe('result mapper', () => {
 
     assert.equal(
       renderToStaticMarkup(gqlToReact(query)),
-      '<div><span id="my-id">This is text</span><span></span></div>'
+      '<div><span id="my-id">This is text</span><span></span></div>',
     );
   });
 });
