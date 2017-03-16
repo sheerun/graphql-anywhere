@@ -730,4 +730,40 @@ describe('graphql anywhere', () => {
       },
     });
   });
+
+  it('can handle subscriptions', () => {
+    const data = {
+      user: {
+        id: 1,
+        name: 'Some User',
+        height: 1.89,
+      },
+    };
+
+    const resolver = (fieldName, root) => root[fieldName];
+
+    const query = gql`
+      subscription {
+        user {
+          id
+          name
+          height
+        }
+      }
+    `;
+
+    const result = graphql(
+      resolver,
+      query,
+      data
+    );
+
+    assert.deepEqual(result, {
+      user: {
+        id: 1,
+        name: 'Some User',
+        height: 1.89,
+      },
+    });
+  });
 });
