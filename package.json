@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "stubailo/graphql-anywhere"
+    "url": "apollographql/graphql-anywhere"
   },
   "keywords": [
     "ecmascript",
