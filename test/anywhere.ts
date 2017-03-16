@@ -25,7 +25,7 @@ describe('graphql anywhere', () => {
       query,
       '',
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {
@@ -69,7 +69,7 @@ describe('graphql anywhere', () => {
       query,
       '',
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {});
@@ -88,7 +88,7 @@ describe('graphql anywhere', () => {
 
     const result = graphql(
       resolver,
-      query
+      query,
     );
 
     assert.deepEqual(result, {
@@ -128,7 +128,7 @@ describe('graphql anywhere', () => {
       query,
       obj,
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {
@@ -166,7 +166,7 @@ describe('graphql anywhere', () => {
       query,
       obj,
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {
@@ -200,7 +200,7 @@ describe('graphql anywhere', () => {
       query,
       null,
       null,
-      variables
+      variables,
     );
 
     assert.deepEqual(result, {
@@ -269,7 +269,7 @@ describe('graphql anywhere', () => {
       query,
       null,
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {
@@ -305,7 +305,7 @@ describe('graphql anywhere', () => {
       query,
       null,
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {
@@ -474,7 +474,7 @@ describe('graphql anywhere', () => {
     const result = graphql(
       resolver,
       query,
-      gitHubAPIResponse
+      gitHubAPIResponse,
     );
 
     assert.deepEqual(result, {
@@ -515,7 +515,7 @@ describe('graphql anywhere', () => {
     // Generate the object!
     const result = graphql(
       resolver,
-      query
+      query,
     );
 
     assert.deepEqual(result, {
@@ -591,7 +591,7 @@ describe('graphql anywhere', () => {
       resolver,
       query,
       null,
-      data // pass data as context since we have to access it all the time
+      data, // pass data as context since we have to access it all the time
     );
 
     // This is the non-normalized data, with only the fields we asked for in our query!
@@ -631,7 +631,7 @@ describe('graphql anywhere', () => {
 
     graphql(
       resolver,
-      query
+      query,
     );
 
     assert.deepEqual(leafMap, {
@@ -718,7 +718,7 @@ describe('graphql anywhere', () => {
       query,
       '',
       null,
-      null
+      null,
     );
 
     assert.deepEqual(result, {
@@ -755,7 +755,7 @@ describe('graphql anywhere', () => {
     const result = graphql(
       resolver,
       query,
-      data
+      data,
     );
 
     assert.deepEqual(result, {
