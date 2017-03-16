@@ -2,6 +2,10 @@
 
 ### vNext
 
+### v3.0.0
+- Improve performance of getMainDefinition.
+- Breaking: getMainDefiniton now returns first operation definition in document instead of query before mutation.
+
 ### v2.2.0
 - Fix mishandling of arrays in fragments
 - Operation definition can also be a mutation (instead of only query)
