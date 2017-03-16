@@ -766,4 +766,48 @@ describe('graphql anywhere', () => {
       },
     });
   });
+
+  it('can handle documents with multiple fragments', () => {
+   const data = {
+      user: {
+        id: 1,
+        name: 'Some User',
+        height: 1.89,
+      },
+    };
+
+    const resolver = (fieldName, root) => root[fieldName];
+
+    const query = gql`
+      fragment A on User {
+        name
+      }
+
+      fragment B on User {
+        height
+      }
+
+      query {
+        user {
+          id
+          ...A
+          ...B
+        }
+      }
+    `;
+
+    const result = graphql(
+      resolver,
+      query,
+      data,
+    );
+
+    assert.deepEqual(result, {
+      user: {
+        id: 1,
+        name: 'Some User',
+        height: 1.89,
+      },
+    });
+  });
 });

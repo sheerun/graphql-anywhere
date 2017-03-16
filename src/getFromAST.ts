@@ -49,8 +49,15 @@ export function createFragmentMap(fragments: FragmentDefinitionNode[] = []): Fra
   return symTable;
 }
 
+/**
+ * Returns the first operation definition found in this document.
+ * If no operation definition is found, the first fragment definition will be returned.
+ * If no definitions are found, an error will be thrown.
+ */
 export function getMainDefinition(queryDoc: DocumentNode): OperationDefinitionNode | FragmentDefinitionNode {
   checkDocument(queryDoc);
+
+  let fragmentDefinition;
 
   for (let definition of queryDoc.definitions) {
     if (definition.kind === 'OperationDefinition') {
@@ -59,12 +66,15 @@ export function getMainDefinition(queryDoc: DocumentNode): OperationDefinitionNo
         return definition as OperationDefinitionNode;
       }
     }
-    if (definition.kind === 'FragmentDefinition') {
-      if (queryDoc.definitions.length > 1) {
-        throw new Error('Fragment must have exactly one definition.');
-      }
-      return definition as FragmentDefinitionNode;
+    if (definition.kind === 'FragmentDefinition' && !fragmentDefinition) {
+      // we do this because we want to allow multiple fragment definitions
+      // to precede an operation definition.
+      fragmentDefinition = definition as FragmentDefinitionNode;
     }
+  }
+
+  if (fragmentDefinition) {
+    return fragmentDefinition;
   }
 
   throw new Error('Expected a parsed GraphQL query with a query, mutation, subscription, or a fragment.');
