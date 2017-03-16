@@ -2,6 +2,9 @@
 
 ### vNext
 
+### v3.0.1
+- Fix behavior of getMainDefinition to allow fragment definitions to precede the main operation definition
+
 ### v3.0.0
 - Improve performance of getMainDefinition.
 - Breaking: getMainDefiniton now returns first operation definition in document instead of query before mutation.
