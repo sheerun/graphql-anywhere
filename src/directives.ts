@@ -7,17 +7,13 @@ import {
 } from 'graphql';
 
 
-export function shouldInclude(selection: SelectionNode, variables?: { [name: string]: any }): Boolean {
-  if (!variables) {
-    variables = {};
-  }
-
+export function shouldInclude(selection: SelectionNode, variables: { [name: string]: any } = {}): Boolean {
   if (!selection.directives) {
     return true;
   }
 
   let res: Boolean = true;
-  selection.directives.forEach((directive) => {
+  selection.directives.some((directive) => {
     // TODO should move this validation to GraphQL validation once that's implemented.
     if (directive.name.value !== 'skip' && directive.name.value !== 'include') {
       // Just don't worry about directives we don't understand
@@ -59,7 +55,11 @@ export function shouldInclude(selection: SelectionNode, variables?: { [name: str
 
     if (!evaledValue) {
       res = false;
+      // Exit this function:
+      return true;
     }
+
+    return false;
   });
 
   return res;

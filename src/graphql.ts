@@ -77,7 +77,7 @@ export function graphql(
   const mainDefinition = getMainDefinition(document);
 
   const fragments = getFragmentDefinitions(document);
-  const fragmentMap = createFragmentMap(fragments) || {};
+  const fragmentMap = createFragmentMap(fragments);
 
   const resultMapper = execOptions.resultMapper;
 
@@ -115,7 +115,7 @@ function executeSelectionSet(
   const result = {};
 
   selectionSet.selections.forEach((selection) => {
-    if (! shouldInclude(selection, variables)) {
+    if (!shouldInclude(selection, variables)) {
       // Skip this entirely
       return;
     }
@@ -182,20 +182,20 @@ function executeField(
   const args = argumentsObjectFromField(field, variables);
 
   const info: ExecInfo = {
-    isLeaf: ! field.selectionSet,
+    isLeaf: !field.selectionSet,
     resultKey: resultKeyNameFromField(field),
   };
 
   const result = resolver(fieldName, rootValue, args, contextValue, info);
 
   // Handle all scalar types here
-  if (! field.selectionSet) {
+  if (!field.selectionSet) {
     return result;
   }
 
   // From here down, the field has a selection set, which means it's trying to
   // query a GraphQLObjectType
-  if (result === null || typeof result === 'undefined') {
+  if (result == null) {
     // Basically any field in a GraphQL response can be null, or missing
     return result;
   }
@@ -240,10 +240,7 @@ function executeSubSelectedArray(
 function merge(dest, src) {
   if (
     src === null ||
-    typeof src === 'undefined' ||
-    typeof src === 'string' ||
-    typeof src === 'number' ||
-    typeof src === 'boolean'
+    typeof src !== 'object'
   ) {
     // These types just override whatever was in dest
     return src;
@@ -258,7 +255,7 @@ function merge(dest, src) {
 
   // Add props only on src
   Object.keys(src).forEach((srcKey) => {
-    if (! dest.hasOwnProperty(srcKey)) {
+    if (!dest.hasOwnProperty(srcKey)) {
       dest[srcKey] = src[srcKey];
     }
   });

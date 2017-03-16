@@ -17,24 +17,24 @@ import {
 
 type ScalarValue = StringValueNode | BooleanValueNode | EnumValueNode;
 
-function isScalarValue(value: ValueNode): value is ScalarValue {
-  const SCALAR_TYPES = {
-    StringValue: 1,
-    BooleanValue: 1,
-    EnumValue: 1,
-  };
+const SCALAR_TYPES = {
+  StringValue: true,
+  BooleanValue: true,
+  EnumValue: true,
+};
 
-  return !! SCALAR_TYPES[value.kind];
+function isScalarValue(value: ValueNode): value is ScalarValue {
+  return !!SCALAR_TYPES[value.kind];
 }
 
 type NumberValue = IntValueNode | FloatValueNode;
 
-function isNumberValue(value: ValueNode): value is NumberValue {
-  const NUMBER_TYPES = {
-    IntValue: 1,
-    FloatValue: 1,
-  };
+const NUMBER_TYPES = {
+  IntValue: true,
+  FloatValue: true,
+};
 
+function isNumberValue(value: ValueNode): value is NumberValue {
   return NUMBER_TYPES[value.kind];
 }
 
@@ -50,7 +50,7 @@ function isList(value: ValueNode): value is ListValueNode {
   return value.kind === 'ListValue';
 }
 
-function valueToObjectRepresentation(argObj: any, name: NameNode, value: ValueNode, variables?: Object) {
+function valueToObjectRepresentation(argObj: any, name: NameNode, value: ValueNode, variables: Object = {}) {
   if (isNumberValue(value)) {
     argObj[name.value] = Number(value.value);
   } else if (isScalarValue(value)) {
@@ -60,7 +60,7 @@ function valueToObjectRepresentation(argObj: any, name: NameNode, value: ValueNo
     value.fields.map((obj) => valueToObjectRepresentation(nestedArgObj, obj.name, obj.value, variables));
     argObj[name.value] = nestedArgObj;
   } else if (isVariable(value)) {
-    const variableValue = (variables || {})[value.name.value];
+    const variableValue = variables[value.name.value];
     argObj[name.value] = variableValue;
   } else if (isList(value)) {
     argObj[name.value] = value.values.map((listValue) => {
