@@ -755,7 +755,7 @@ describe('graphql anywhere', () => {
     const result = graphql(
       resolver,
       query,
-      data
+      data,
     );
 
     assert.deepEqual(result, {
