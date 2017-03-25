@@ -50,6 +50,7 @@ export type ExecContext = {
 export type ExecInfo = {
   isLeaf: boolean;
   resultKey: string;
+  fieldNode: FieldNode;
 };
 
 export type ExecOptions = {
@@ -184,6 +185,7 @@ function executeField(
   const info: ExecInfo = {
     isLeaf: !field.selectionSet,
     resultKey: resultKeyNameFromField(field),
+    fieldNode: field
   };
 
   const result = resolver(fieldName, rootValue, args, contextValue, info);
