@@ -14,7 +14,9 @@ import {
 } from './getFromAST';
 
 import {
+  DirectiveInfo,
   shouldInclude,
+  getDirectiveInfoFromField,
 } from './directives';
 
 import {
@@ -46,11 +48,10 @@ export type ExecContext = {
   fragmentMatcher: FragmentMatcher;
 };
 
-
 export type ExecInfo = {
   isLeaf: boolean;
   resultKey: string;
-  fieldNode: FieldNode;
+  directives: DirectiveInfo;
 };
 
 export type ExecOptions = {
@@ -185,7 +186,7 @@ function executeField(
   const info: ExecInfo = {
     isLeaf: !field.selectionSet,
     resultKey: resultKeyNameFromField(field),
-    fieldNode: field
+    directives: getDirectiveInfoFromField(field)
   };
 
   const result = resolver(fieldName, rootValue, args, contextValue, info);

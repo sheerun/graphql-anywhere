@@ -55,26 +55,6 @@ describe('graphql anywhere', () => {
     });
   });
 
-  it('works with directives', () => {
-    const resolver = () => { throw new Error('should not be called'); };
-
-    const query = gql`
-      {
-        a @skip(if: true)
-      }
-    `;
-
-    const result = graphql(
-      resolver,
-      query,
-      '',
-      null,
-      null,
-    );
-
-    assert.deepEqual(result, {});
-  });
-
   it('traverses arrays returned from the resolver', () => {
     const resolver = () => [1, 2];
 
