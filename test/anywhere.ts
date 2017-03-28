@@ -593,7 +593,7 @@ describe('graphql anywhere', () => {
     });
   });
 
-  it('passes info including isLeaf and resultKey', () => {
+  it('passes info including isLeaf, resultKey and directives', () => {
     const leafMap = {};
 
     const resolver: Resolver = (fieldName, root, args, context, info) => {
@@ -605,6 +605,7 @@ describe('graphql anywhere', () => {
       {
         alias: a {
           b
+          hasDirective @yup
         }
       }
     `;
@@ -616,12 +617,19 @@ describe('graphql anywhere', () => {
 
     assert.deepEqual(leafMap, {
       a: {
+        directives: {},
         isLeaf: false,
         resultKey: 'alias',
       },
       b: {
+        directives: {},
         isLeaf: true,
         resultKey: 'b',
+      },
+      hasDirective: {
+        directives: { yup: {} },
+        isLeaf: true,
+        resultKey: 'hasDirective',
       },
     });
   });

@@ -9,16 +9,16 @@ import {
 } from 'graphql';
 
 export type DirectiveInfo = {
-  [fieldName: string]: {[argName:string]: any}
+  [fieldName: string]: {[argName: string]: any},
 };
 
-export function getDirectiveInfoFromField(field: FieldNode) : DirectiveInfo {
-  return field.directives.reduce((acc: DirectiveInfo, directiveNode: DirectiveNode) => {
-    acc[directiveNode.name.value] = directiveNode.arguments.reduce((acc, argumentNode) => {
-      acc[argumentNode.name.value] = argumentNode.value;
-      return acc;
+export function getDirectiveInfoFromField(field: FieldNode): DirectiveInfo {
+  return field.directives.reduce((directives: DirectiveInfo, directiveNode: DirectiveNode) => {
+    directives[directiveNode.name.value] = directiveNode.arguments.reduce((args, argumentNode) => {
+      args[argumentNode.name.value] = argumentNode.value;
+      return args;
     }, {});
-    return acc;
+    return directives;
   }, {});
 }
 

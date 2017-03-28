@@ -1,7 +1,7 @@
 
 import { assert } from 'chai';
 
-import graphql, { Resolver } from '../src';
+import graphql from '../src';
 import gql from 'graphql-tag';
 
 describe('directives', () => {
@@ -28,7 +28,7 @@ describe('directives', () => {
   it('includes info about arbitrary directives', () => {
     const resolver = (fieldName, root, args, context, info) => {
       const { doSomethingDifferent } = info.directives;
-      let result = root[info.resultKey]
+      let result = root[info.resultKey];
       if (doSomethingDifferent) {
         if (doSomethingDifferent.but.value === 'notTooCrazy') {
           return `${result} different`;
@@ -40,8 +40,8 @@ describe('directives', () => {
     };
 
     const input = {
-      a: 'something'
-    }
+      a: 'something',
+    };
 
     const query = gql`
       {
