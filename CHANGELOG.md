@@ -1,6 +1,7 @@
 # Change log
 
 ### vNext
+- Update graphql-tag to 2.0.0
 
 ### v3.0.1
 - Fix behavior of getMainDefinition to allow fragment definitions to precede the main operation definition
