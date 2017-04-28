@@ -32,7 +32,7 @@
   "author": "Sashko Stubailo <sashko@stubailo.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/chai": "3.4.35",
+    "@types/chai": "3.5.2",
     "@types/isomorphic-fetch": "0.0.33",
     "@types/graphql": "^0.9.0",
     "@types/isomorphic-fetch": "0.0.33",
