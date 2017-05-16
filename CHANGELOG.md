@@ -1,6 +1,7 @@
 # Change log
 
 ### vNext
+- Merging overlapping fragment and inline object fields [PR #67](https://github.com/apollographql/graphql-anywhere/pull/67)
 - Update graphql-tag to 2.0.0
 
 ### v3.0.1
