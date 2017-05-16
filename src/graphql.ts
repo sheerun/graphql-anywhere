@@ -130,7 +130,11 @@ function executeSelectionSet(
       const resultFieldKey = resultKeyNameFromField(selection);
 
       if (fieldResult !== undefined) {
-        result[resultFieldKey] = fieldResult;
+        if (result[resultFieldKey] === undefined) {
+          result[resultFieldKey] = fieldResult;
+        } else {
+          merge(result[resultFieldKey], fieldResult);
+        }
       }
     } else {
       let fragment: InlineFragmentNode | FragmentDefinitionNode;
