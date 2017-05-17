@@ -328,7 +328,7 @@ describe('graphql anywhere', () => {
         stringField,
         numberField,
         nullField,
-        ...on Item {
+        ... on Item {
           nestedObj {
             stringField
             nullField
@@ -338,7 +338,7 @@ describe('graphql anywhere', () => {
             }
           }
         }
-        ...on Item {
+        ... on Item {
           nestedObj {
             numberField
             nullField
@@ -350,6 +350,9 @@ describe('graphql anywhere', () => {
         }
         ... on Item {
           nullObject
+        }
+        nestedObj {
+          inlinedObjectStringField
         }
       }
     `;
@@ -369,6 +372,7 @@ describe('graphql anywhere', () => {
           numberField: 7,
           nullField: null,
         },
+        inlinedObjectStringField: 'This is a string of an inlined object',
       },
       nullObject: null,
     };
@@ -389,6 +393,7 @@ describe('graphql anywhere', () => {
           numberField: 7,
           nullField: null,
         },
+        inlinedObjectStringField: 'This is a string of an inlined object',
       },
       nullObject: null,
     });
