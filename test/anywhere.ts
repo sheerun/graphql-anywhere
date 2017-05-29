@@ -605,7 +605,7 @@ describe('graphql anywhere', () => {
       {
         alias: a {
           b
-          hasDirective @yup
+          hasDirective @skip(if: false) @otherDirective(arg: $x)
         }
       }
     `;
@@ -613,21 +613,27 @@ describe('graphql anywhere', () => {
     graphql(
       resolver,
       query,
+      null,
+      null,
+      { x: 'argument' },
     );
 
     assert.deepEqual(leafMap, {
       a: {
-        directives: {},
+        directives: null,
         isLeaf: false,
         resultKey: 'alias',
       },
       b: {
-        directives: {},
+        directives: null,
         isLeaf: true,
         resultKey: 'b',
       },
       hasDirective: {
-        directives: { yup: {} },
+        directives: {
+          skip: { if: false },
+          otherDirective: { arg: 'argument'},
+        },
         isLeaf: true,
         resultKey: 'hasDirective',
       },
