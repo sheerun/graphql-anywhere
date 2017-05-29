@@ -186,7 +186,7 @@ function executeField(
   const info: ExecInfo = {
     isLeaf: !field.selectionSet,
     resultKey: resultKeyNameFromField(field),
-    directives: getDirectiveInfoFromField(field),
+    directives: getDirectiveInfoFromField(field, variables),
   };
 
   const result = resolver(fieldName, rootValue, args, contextValue, info);
