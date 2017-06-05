@@ -55,26 +55,6 @@ describe('graphql anywhere', () => {
     });
   });
 
-  it('works with directives', () => {
-    const resolver = () => { throw new Error('should not be called'); };
-
-    const query = gql`
-      {
-        a @skip(if: true)
-      }
-    `;
-
-    const result = graphql(
-      resolver,
-      query,
-      '',
-      null,
-      null,
-    );
-
-    assert.deepEqual(result, {});
-  });
-
   it('traverses arrays returned from the resolver', () => {
     const resolver = () => [1, 2];
 
@@ -618,7 +598,7 @@ describe('graphql anywhere', () => {
     });
   });
 
-  it('passes info including isLeaf and resultKey', () => {
+  it('passes info including isLeaf, resultKey and directives', () => {
     const leafMap = {};
 
     const resolver: Resolver = (fieldName, root, args, context, info) => {
@@ -630,6 +610,7 @@ describe('graphql anywhere', () => {
       {
         alias: a {
           b
+          hasDirective @skip(if: false) @otherDirective(arg: $x)
         }
       }
     `;
@@ -637,16 +618,29 @@ describe('graphql anywhere', () => {
     graphql(
       resolver,
       query,
+      null,
+      null,
+      { x: 'argument' },
     );
 
     assert.deepEqual(leafMap, {
       a: {
+        directives: null,
         isLeaf: false,
         resultKey: 'alias',
       },
       b: {
+        directives: null,
         isLeaf: true,
         resultKey: 'b',
+      },
+      hasDirective: {
+        directives: {
+          skip: { if: false },
+          otherDirective: { arg: 'argument'},
+        },
+        isLeaf: true,
+        resultKey: 'hasDirective',
       },
     });
   });
