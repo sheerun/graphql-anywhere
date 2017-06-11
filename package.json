@@ -42,7 +42,7 @@
     "@types/react-dom": "^15.5.0",
     "async": "^2.0.0",
     "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
+    "chai-as-promised": "^7.0.0",
     "es6-promise": "^4.0.5",
     "graphql": "^0.10.0",
     "graphql-tag": "^2.0.0",
