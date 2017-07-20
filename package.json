@@ -33,7 +33,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "3.5.2",
-    "@types/isomorphic-fetch": "0.0.33",
+    "@types/isomorphic-fetch": "0.0.34",
     "@types/graphql": "^0.10.0",
     "@types/lodash": "^4.14.37",
     "@types/mocha": "^2.2.32",
